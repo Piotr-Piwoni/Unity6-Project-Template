@@ -1,0 +1,255 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7edb8eb7125ea44f68bbe616b44fa9bc, type: 3}
+  m_Name: Color Palette
+  m_EditorClassIdentifier: 
+  colorDesigns:
+  - keyChar: $LB#1
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.13725491, g: 0.3803922, b: 0.87843144, a: 1}
+    textAlignment: 3
+    fontStyle: 3
+  - keyChar: $CB#1
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.13656996, g: 0.38041374, b: 0.8773585, a: 1}
+    textAlignment: 4
+    fontStyle: 3
+  - keyChar: $RB#1
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.13656996, g: 0.38041374, b: 0.8773585, a: 1}
+    textAlignment: 5
+    fontStyle: 3
+  - keyChar: $LB#2
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.23740657, g: 0.8475767, b: 0.9150943, a: 1}
+    textAlignment: 3
+    fontStyle: 3
+  - keyChar: $CB#2
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.23740657, g: 0.8475767, b: 0.9150943, a: 1}
+    textAlignment: 4
+    fontStyle: 3
+  - keyChar: $RB#2
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.23740657, g: 0.8475767, b: 0.9150943, a: 1}
+    textAlignment: 5
+    fontStyle: 3
+  - keyChar: $LR#1
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 1, g: 0.037985973, b: 0, a: 1}
+    textAlignment: 3
+    fontStyle: 3
+  - keyChar: $CR#1
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 1, g: 0.037985973, b: 0, a: 1}
+    textAlignment: 4
+    fontStyle: 3
+  - keyChar: $RR#1
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 1, g: 0.037985973, b: 0, a: 1}
+    textAlignment: 5
+    fontStyle: 3
+  - keyChar: $LR#2
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.7924528, g: 0.081761, b: 0, a: 1}
+    textAlignment: 3
+    fontStyle: 3
+  - keyChar: $CR#2
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.7924528, g: 0.081761, b: 0, a: 1}
+    textAlignment: 4
+    fontStyle: 3
+  - keyChar: $RR#2
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.7924528, g: 0.081761, b: 0, a: 1}
+    textAlignment: 5
+    fontStyle: 3
+  - keyChar: $LY#1
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.99285436, g: 1, b: 0, a: 1}
+    textAlignment: 3
+    fontStyle: 3
+  - keyChar: $CY#1
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.99285436, g: 1, b: 0, a: 1}
+    textAlignment: 4
+    fontStyle: 3
+  - keyChar: $RY#1
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.99285436, g: 1, b: 0, a: 1}
+    textAlignment: 5
+    fontStyle: 3
+  - keyChar: $LY#2
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.9339623, g: 0.81575966, b: 0.118948035, a: 1}
+    textAlignment: 3
+    fontStyle: 3
+  - keyChar: $CY#2
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.9339623, g: 0.81575966, b: 0.118948035, a: 1}
+    textAlignment: 4
+    fontStyle: 3
+  - keyChar: $RY#2
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.9339623, g: 0.81575966, b: 0.118948035, a: 1}
+    textAlignment: 5
+    fontStyle: 3
+  - keyChar: $LG#1
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.19750293, g: 0.8584906, b: 0.13363297, a: 1}
+    textAlignment: 3
+    fontStyle: 3
+  - keyChar: $CG#1
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.19750293, g: 0.8584906, b: 0.13363297, a: 1}
+    textAlignment: 4
+    fontStyle: 3
+  - keyChar: $RG#1
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.19750293, g: 0.8584906, b: 0.13363297, a: 1}
+    textAlignment: 5
+    fontStyle: 3
+  - keyChar: $LG#2
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.1424263, g: 0.6792453, b: 0.086507656, a: 1}
+    textAlignment: 3
+    fontStyle: 3
+  - keyChar: $CG#2
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.1424263, g: 0.6792453, b: 0.086507656, a: 1}
+    textAlignment: 4
+    fontStyle: 3
+  - keyChar: $RG#2
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.1424263, g: 0.6792453, b: 0.086507656, a: 1}
+    textAlignment: 5
+    fontStyle: 3
+  - keyChar: $LPP#1
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.46394923, g: 0.031772893, b: 0.9622642, a: 1}
+    textAlignment: 3
+    fontStyle: 3
+  - keyChar: $CPP#1
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.46394923, g: 0.031772893, b: 0.9622642, a: 1}
+    textAlignment: 4
+    fontStyle: 3
+  - keyChar: $RPP#1
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.46394923, g: 0.031772893, b: 0.9622642, a: 1}
+    textAlignment: 5
+    fontStyle: 3
+  - keyChar: $LPP#2
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.3469715, g: 0.13656996, b: 0.8773585, a: 1}
+    textAlignment: 3
+    fontStyle: 3
+  - keyChar: $CPP#2
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.3469715, g: 0.13656996, b: 0.8773585, a: 1}
+    textAlignment: 4
+    fontStyle: 3
+  - keyChar: $RPP#2
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.3469715, g: 0.13656996, b: 0.8773585, a: 1}
+    textAlignment: 5
+    fontStyle: 3
+  - keyChar: $LP#1
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.9056604, g: 0.17515129, b: 0.81247205, a: 1}
+    textAlignment: 3
+    fontStyle: 3
+  - keyChar: $CP#1
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.9056604, g: 0.17515129, b: 0.81247205, a: 1}
+    textAlignment: 4
+    fontStyle: 3
+  - keyChar: $RP#1
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.9056604, g: 0.17515129, b: 0.81247205, a: 1}
+    textAlignment: 5
+    fontStyle: 3
+  - keyChar: $LP#2
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.9622642, g: 0.51290494, b: 0.8083133, a: 1}
+    textAlignment: 3
+    fontStyle: 3
+  - keyChar: $CP#2
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.9622642, g: 0.51290494, b: 0.8083133, a: 1}
+    textAlignment: 4
+    fontStyle: 3
+  - keyChar: $RP#2
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.9622642, g: 0.51290494, b: 0.8083133, a: 1}
+    textAlignment: 5
+    fontStyle: 3
+  - keyChar: $LGY#1
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.5660378, g: 0.5660378, b: 0.5660378, a: 1}
+    textAlignment: 3
+    fontStyle: 3
+  - keyChar: $CGY#1
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.5660378, g: 0.5660378, b: 0.5660378, a: 1}
+    textAlignment: 4
+    fontStyle: 3
+  - keyChar: $RGY#1
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.5660378, g: 0.5660378, b: 0.5660378, a: 1}
+    textAlignment: 5
+    fontStyle: 3
+  - keyChar: $LGY#2
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.8113208, g: 0.8113208, b: 0.8113208, a: 1}
+    textAlignment: 3
+    fontStyle: 3
+  - keyChar: $CGY#2
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.8113208, g: 0.8113208, b: 0.8113208, a: 1}
+    textAlignment: 4
+    fontStyle: 3
+  - keyChar: $RGY#2
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.8113208, g: 0.8113208, b: 0.8113208, a: 1}
+    textAlignment: 5
+    fontStyle: 3
+  - keyChar: $LW
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.9056604, g: 0.9056604, b: 0.9056604, a: 1}
+    textAlignment: 3
+    fontStyle: 3
+  - keyChar: $CW
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.9056604, g: 0.9056604, b: 0.9056604, a: 1}
+    textAlignment: 4
+    fontStyle: 3
+  - keyChar: $RW
+    textColor: {r: 0, g: 0, b: 0, a: 1}
+    backgroundColor: {r: 0.9056604, g: 0.9056604, b: 0.9056604, a: 1}
+    textAlignment: 5
+    fontStyle: 3
+  - keyChar: $LBK
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.066037714, g: 0.066037714, b: 0.066037714, a: 1}
+    textAlignment: 3
+    fontStyle: 3
+  - keyChar: $CBK
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.066037714, g: 0.066037714, b: 0.066037714, a: 1}
+    textAlignment: 4
+    fontStyle: 3
+  - keyChar: $RBK
+    textColor: {r: 1, g: 1, b: 1, a: 1}
+    backgroundColor: {r: 0.066037714, g: 0.066037714, b: 0.066037714, a: 1}
+    textAlignment: 5
+    fontStyle: 3
