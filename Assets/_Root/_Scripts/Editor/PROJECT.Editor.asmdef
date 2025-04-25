@@ -1,18 +1,20 @@
 {
-    "name": "PROJECT.Editor",
-    "rootNamespace": "PROJECT.Editor",
-    "references": [],
-    "includePlatforms": [
-        "Editor"
-    ],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [
-        "UNITY_EDITOR"
-    ],
-    "versionDefines": [],
-    "noEngineReferences": false
+  "name": "Project.Editor",
+"rootNamespace": "ProjectName.Editor",
+  "references": [
+    "GUID:9ed0232aea12c584293ed32bf0ff8803"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "UNITY_EDITOR"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
 }
