@@ -1,6 +1,6 @@
 {
   "name": "Project.Editor",
-"rootNamespace": "ProjectName.Editor",
+"rootNamespace": "PROJECTNAME.Editor",
   "references": [
     "GUID:9ed0232aea12c584293ed32bf0ff8803"
   ],

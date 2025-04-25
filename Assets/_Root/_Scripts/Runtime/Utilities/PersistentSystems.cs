@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using ProjectName.Interfaces;
+using PROJECTNAME.Interfaces;
 using EditorAttributes;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace ProjectName.Utilities
+namespace PROJECTNAME.Utilities
 {
 public class PersistentSystems : PersistantSingleton<PersistentSystems>
 {

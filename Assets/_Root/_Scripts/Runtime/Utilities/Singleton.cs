@@ -1,11 +1,11 @@
-using ProjectName.Interfaces;
+using PROJECTNAME.Interfaces;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 // Inspired and taken from a Tarodev video - Unity Architecture for Noobs - Game Structure
 // URL: https://www.youtube.com/watch?v=tE1qH8OxO2Y
 
-namespace ProjectName.Utilities
+namespace PROJECTNAME.Utilities
 {
 /// <summary>
 ///     A static instance is similar to a singleton, but instead of destroying new

@@ -1,6 +1,6 @@
 using UnityEngine.SceneManagement;
 
-namespace ProjectName.Interfaces
+namespace PROJECTNAME.Interfaces
 {
 public interface ISceneChangeHandler
 {
