@@ -1,23 +1,21 @@
-﻿using System.IO;
+using System.IO;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
-namespace Project.Editor
+namespace ProjectName.Editor
 {
 public class AssemblyDefUpdater : MonoBehaviour
 {
 	private const string HistoryFileName = "LastProductName.txt";
 
-	[MenuItem("Tools/Update Assembly Definitions")]
+	[MenuItem("Tools/Update Assembly Definitions and Namespaces")]
 	public static void UpdateAssemblyDefinitions()
 	{
-		// Get and clean the product name.
 		var productName = PlayerSettings.productName.Replace(" ", string.Empty);
-
 		var rootFolderPath = "Assets/_Root";
 		var historyPath =
-			Path.Combine(Application.dataPath, "Editor", HistoryFileName);
+			Path.Combine(Application.dataPath, "_Root/_Scripts/Editor", HistoryFileName);
 
 		if (!Directory.Exists(rootFolderPath))
 		{
@@ -25,18 +23,20 @@ public class AssemblyDefUpdater : MonoBehaviour
 			return;
 		}
 
-		// Load old name or fallback to "Project".
+		// Load old name or default to "Project"
 		var oldName = "Project";
 		if (File.Exists(historyPath))
 			oldName = File.ReadAllText(historyPath).Trim();
 
-		var assemblyDefs = Directory.GetFiles(rootFolderPath, "*.asmdef",
-			SearchOption.AllDirectories);
 		var anyChanges = false;
 
-		foreach (var assemblyDefPath in assemblyDefs)
+		// --- Update Assembly Definitions ---
+		var asmdefFiles = Directory.GetFiles(rootFolderPath, "*.asmdef",
+			SearchOption.AllDirectories);
+
+		foreach (var file in asmdefFiles)
 		{
-			var lines = File.ReadAllLines(assemblyDefPath);
+			var lines = File.ReadAllLines(file);
 			var changed = false;
 
 			for (var i = 0; i < lines.Length; i++)
@@ -65,14 +65,61 @@ public class AssemblyDefUpdater : MonoBehaviour
 
 			if (changed)
 			{
-				File.WriteAllLines(assemblyDefPath, lines);
-				Debug.Log($"Updated rootNamespace in: {assemblyDefPath}");
+				File.WriteAllLines(file, lines);
+				Debug.Log($"Updated rootNamespace in: {file}");
 			}
-			else
-				Debug.Log("Nothing Happened...");
 		}
 
-		// Update stored old product name
+		// --- Update Namespaces in Scripts ---
+		// This includes all scripts in _Root and all its subfolders.
+		var scriptFiles = Directory.GetFiles(rootFolderPath, "*.cs",
+			SearchOption.AllDirectories);
+
+		foreach (var file in scriptFiles)
+		{
+			var content = File.ReadAllText(file);
+			var originalContent = content;
+			var changed = false;
+
+			// Replace old name in using statements
+			var usingPattern = new Regex(@"using\s+([\w\.]+);");
+			content = usingPattern.Replace(content, match =>
+			{
+				var ns = match.Groups[1].Value;
+				if (ns.Contains(oldName))
+				{
+					changed = true;
+					var replaced = ns.Replace(oldName, productName);
+					return $"using {replaced};";
+				}
+
+				return match.Value;
+			});
+
+			// Replace in namespace declarations
+			Match namespaceMatch =
+				Regex.Match(content, @"namespace\s+([\w\.]+)");
+			if (namespaceMatch.Success)
+			{
+				var ns = namespaceMatch.Groups[1].Value;
+				if (ns.Contains(oldName))
+				{
+					var updatedNs = ns.Replace(oldName, productName);
+					content = content.Replace(ns, updatedNs);
+					changed = true;
+				}
+			}
+
+			if (changed && content != originalContent)
+			{
+				File.WriteAllText(file, content);
+				Debug.Log(
+					$"Updated using statements and/or namespace in: {file}");
+				anyChanges = true;
+			}
+		}
+
+		// --- Store new product name ---
 		Directory.CreateDirectory(Path.GetDirectoryName(historyPath));
 		File.WriteAllText(historyPath, productName);
 
@@ -81,6 +128,8 @@ public class AssemblyDefUpdater : MonoBehaviour
 			AssetDatabase.Refresh();
 			Debug.Log("AssetDatabase refreshed.");
 		}
+		else
+			Debug.Log("No changes detected.");
 	}
 }
 }
