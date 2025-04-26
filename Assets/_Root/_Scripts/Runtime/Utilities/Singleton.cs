@@ -2,7 +2,8 @@ using PROJECTNAME.Interfaces;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// Inspired and taken from a Tarodev video - Unity Architecture for Noobs - Game Structure
+// Inspired and taken from a Tarodev video
+// - Unity Architecture for Noobs - Game Structure
 // URL: https://www.youtube.com/watch?v=tE1qH8OxO2Y
 
 namespace PROJECTNAME.Utilities
@@ -16,19 +17,18 @@ namespace PROJECTNAME.Utilities
 public abstract class StaticInstance<T> : MonoBehaviour
 	where T : MonoBehaviour
 {
-	public static T m_Instance { get; private set; }
-
+	public static T Instance { get; private set; }
 
 	protected virtual void Awake()
 	{
-		if (!m_Instance)
-			m_Instance = this as T;
-		else if (m_Instance != this) Destroy(gameObject);
+		if (!Instance)
+			Instance = this as T;
+		else if (Instance != this) Destroy(gameObject);
 	}
 
 	protected virtual void OnApplicationQuit()
 	{
-		m_Instance = null;
+		Instance = null;
 		Destroy(gameObject);
 	}
 }
@@ -38,39 +38,47 @@ public abstract class StaticInstance<T> : MonoBehaviour
 ///     original instance intact.
 /// </summary>
 /// <typeparam name="T">The class to make a singleton.</typeparam>
-public abstract class Singleton<T> : StaticInstance<T>, ISceneChangeHandler
+public abstract class Singleton<T> : StaticInstance<T>
 	where T : MonoBehaviour
 {
 	protected override void Awake()
 	{
-		if (m_Instance)
+		if (Instance)
 		{
 			Destroy(gameObject);
 			return;
 		}
 
 		base.Awake();
-		PersistentSystems.m_Instance.RegisterSingleton(this);
 	}
-
-	public abstract void OnSceneChange(Scene scene, LoadSceneMode mode);
 }
-
 
 /// <summary>
 ///     A persistent version of the singleton. This will survive through scene
 ///     loads.
 /// </summary>
-/// <typeparam name="T">The class to make a persistent singleton.</typeparam>
-public abstract class PersistantSingleton<T> : Singleton<T>
+/// <typeparam name="T">The class to make persistent.</typeparam>
+public abstract class PersistentSingleton<T> : Singleton<T>, ISceneChangeHandler
 	where T : MonoBehaviour
 {
 	protected override void Awake()
 	{
 		base.Awake();
-		if (m_Instance != this) return;
-		transform.SetParent(null); //< Make root object if not.
+		if (Instance != this) return;
+		transform.SetParent(null); //< Make this a root object if not already.
 		DontDestroyOnLoad(gameObject);
 	}
+
+	public virtual void OnEnable()
+	{
+		SceneManager.sceneLoaded += OnSceneChange;
+	}
+
+	public virtual void OnDisable()
+	{
+		SceneManager.sceneLoaded -= OnSceneChange;
+	}
+
+	public abstract void OnSceneChange(Scene scene, LoadSceneMode mode);
 }
 }

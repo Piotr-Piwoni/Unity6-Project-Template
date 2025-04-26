@@ -1,54 +1,40 @@
 using System.Collections.Generic;
 using PROJECTNAME.Interfaces;
-using EditorAttributes;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace PROJECTNAME.Utilities
 {
-public class PersistentSystems : PersistantSingleton<PersistentSystems>
+public class PersistentSystems : PersistentSingleton<PersistentSystems>
 {
-	[SerializeField,
-	 HelpBox("Don't modify the \"_Systems\" list!", MessageMode.Warning)]
-	private Void _SystemsWarningBox;
-	[SerializeField]
-	private List<MonoBehaviour> _Systems = new();
+	private readonly List<ISceneChangeHandler> _SceneChangeHandlers = new();
 
 	protected override void Awake()
 	{
 		base.Awake();
-		// Remove itself from the list.
-		if (_Systems.Contains(this))
-			_Systems.Remove(this);
-	}
-
-	private void OnEnable()
-	{
-		SceneManager.sceneLoaded += OnSceneLoaded;
-	}
-
-	private void OnDisable()
-	{
-		SceneManager.sceneLoaded -= OnSceneLoaded;
+		// Remove itself from the scene change handlers list.
+		if (_SceneChangeHandlers.Contains(this))
+			_SceneChangeHandlers.Remove(this);
 	}
 
 	public override void OnSceneChange(Scene scene, LoadSceneMode mode)
 	{
-		// Handle scene change logic if needed.
+		// Call OnSceneChange() for all registered systems.
+		foreach (ISceneChangeHandler handler in _SceneChangeHandlers)
+			handler.OnSceneChange(scene, mode);
 	}
 
-	// Register a singleton instance.
-	public void RegisterSingleton(MonoBehaviour singleton)
+	// Register a system that implements ISceneChangeHandler.
+	public void RegisterSystem(ISceneChangeHandler handler)
 	{
-		if (!_Systems.Contains(singleton)) _Systems.Add(singleton);
+		if (!_SceneChangeHandlers.Contains(handler))
+			_SceneChangeHandlers.Add(handler);
 	}
 
-	private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+	// Remove a system that implements ISceneChangeHandler.
+	public void RemoveSystem(ISceneChangeHandler handler)
 	{
-		// Call OnSceneChange for all registered Singleton systems.
-		foreach (MonoBehaviour system in _Systems)
-			if (system is ISceneChangeHandler handler)
-				handler.OnSceneChange(scene, mode);
+		if (_SceneChangeHandlers.Contains(handler))
+			_SceneChangeHandlers.Remove(handler);
 	}
 }
 }

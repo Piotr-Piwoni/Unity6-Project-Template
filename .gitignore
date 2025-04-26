@@ -77,3 +77,4 @@ crashlytics-build.properties
 # Custom ignores
 LastProductName.txt
 Assets/_Root/_Scripts/Editor/LastProductName.txt.meta
+Assets/Plugins/FolderColor/SaveSetUp/FolderModificationData.json

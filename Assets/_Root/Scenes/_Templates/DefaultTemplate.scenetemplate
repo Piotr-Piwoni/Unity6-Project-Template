@@ -58,14 +58,16 @@ MonoBehaviour:
   m_Script: {fileID: 13966, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: DefaultTemplate
   m_EditorClassIdentifier: 
-  templateScene: {fileID: 102900000, guid: 3f5e72ad173bbbb44946a36e82c03502, type: 3}
+  templateScene: {fileID: 102900000, guid: 1b47a0232e3622b4fb794bf43027105e, type: 3}
   templateName: Default Scene
   description: A basic scene with some objects.
   preview: {fileID: -7056053934753051837}
   dependencies:
   - dependency: {fileID: 2800000, guid: 32b23d5d74f3aee4f9364e34e2f59379, type: 3}
     instantiationMode: 1
-  - dependency: {fileID: 11400000, guid: 51f059d9ae779204e8fd863548ca7723, type: 2}
+  - dependency: {fileID: 3854588261816579023, guid: 5cb9216582c3269438b9be9542dba5c5, type: 3}
+    instantiationMode: 1
+  - dependency: {fileID: 11400000, guid: 9b7c3cc18d677e241830376114bb3ce2, type: 2}
     instantiationMode: 0
   templatePipeline: {fileID: 0}
   badge: {fileID: 0}

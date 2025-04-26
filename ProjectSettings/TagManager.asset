@@ -10,7 +10,8 @@ TagManager:
   - LightsGroup
   - CameraGroup
   - MiscGroup
-  - ImportantGroup
+  - Manager
+  - System
   layers:
   - Default
   - TransparentFX
