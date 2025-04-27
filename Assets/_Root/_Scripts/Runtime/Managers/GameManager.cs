@@ -1,6 +1,7 @@
 ﻿using EditorAttributes;
 using PROJECTNAME.Systems;
 using PROJECTNAME.Utilities;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,19 +9,27 @@ namespace PROJECTNAME.Managers
 {
 public class GameManager : PersistentSingleton<GameManager>
 {
-	public GameState CurrentState => _CurrentState;
+	public Camera Camera => _Camera;
+	public CinemachineCamera CinemachineCam => _CinemachineCam;
 	public GameObject Player => _Player;
+	public GameState CurrentState => _CurrentState;
 
 	[SerializeField, ReadOnly]
+	private Camera _Camera;
+	[SerializeField, ReadOnly]
+	private CinemachineCamera _CinemachineCam;
+	[Header("Game Values"), SerializeField, ReadOnly, PropertyOrder(-1)]
 	private GameState _CurrentState = GameState.Playing;
-	[SerializeField]
+
+	[Header("Settings"), SerializeField, PropertyOrder(-12)]
 	private GameObject _PlayerPrefab;
 	[SerializeField, ReadOnly]
 	private GameObject _Player;
-	[SerializeField]
+	[SerializeField, PropertyOrder(-12)]
 	private AudioClip _MusicClip;
 
 	private GameState _PreviousState;
+
 
 	protected override void Awake()
 	{
@@ -31,6 +40,8 @@ public class GameManager : PersistentSingleton<GameManager>
 		_Player = GameObject.FindGameObjectWithTag("Player");
 		if (!_Player && _PlayerPrefab)
 			_Player = Instantiate(_PlayerPrefab);
+
+		GetCamera();
 	}
 
 	private void Start()
@@ -72,6 +83,46 @@ public class GameManager : PersistentSingleton<GameManager>
 
 	public override void OnSceneChange(Scene scene, LoadSceneMode mode)
 	{
+	}
+
+	// Try to get the camera in the scene.
+	private void GetCamera()
+	{
+		// Locate the main camera.
+		var cameraObjs = FindObjectsByType<Camera>(FindObjectsInactive.Include,
+			FindObjectsSortMode.None);
+		foreach (Camera camObj in cameraObjs)
+			if (camObj.CompareTag("MainCamera"))
+				_Camera = camObj;
+
+		if (!_Camera)
+		{
+			Debug.LogError("No Camera found on the scene!");
+			return;
+		}
+
+		// Try to get the CinemachineCamera from the Camera's parent.
+		_CinemachineCam = _Camera.GetComponentInParent<CinemachineCamera>(true);
+		if (!_CinemachineCam)
+		{
+			Debug.LogWarning("A Cinemachine Camera was not found in the " +
+			                 "scene or is not the parent object of the Camera.");
+		}
+
+		// If there's a Player, move the cameras to the Player, otherwise move
+		// them to the Game Manager.
+		if (_CinemachineCam)
+		{
+			if (_CinemachineCam.transform.parent == _Player?.transform) return;
+			_CinemachineCam.transform.SetParent(_Player
+				? _Player.transform
+				: transform);
+			return;
+		}
+
+		if (!_Camera) return;
+		if (_Camera.transform.parent == _Player?.transform) return;
+		_Camera.transform.SetParent(_Player ? _Player.transform : transform);
 	}
 
 	public enum GameState

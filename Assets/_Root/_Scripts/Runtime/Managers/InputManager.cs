@@ -62,6 +62,12 @@ public class InputManager : PersistentSingleton<InputManager>
 		InitializeActionMaps();
 	}
 
+	private void Start()
+	{
+		// Enable the Player once the Input Manager initialises.
+		GameManager.Instance.Player.SetActive(true);
+	}
+
 	public override void OnEnable()
 	{
 		base.OnEnable();

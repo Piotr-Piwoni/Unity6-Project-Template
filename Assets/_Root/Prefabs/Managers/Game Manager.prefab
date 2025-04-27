@@ -25,7 +25,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3854588261816579023}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
@@ -44,5 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43a74e58b56948bdacff61bec5d8b7c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _Camera: {fileID: 0}
+  _CinemachineCam: {fileID: 0}
   _CurrentState: 1
+  _PlayerPrefab: {fileID: 3698244087147513884, guid: dd1b93c1f5e4bfa4c8201de9cc78f0a3, type: 3}
+  _Player: {fileID: 0}
   _MusicClip: {fileID: 0}
