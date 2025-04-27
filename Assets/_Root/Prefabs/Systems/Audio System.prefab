@@ -143,6 +143,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _Log: 0
+  _MaxAudioSources: 50
   _TestingClip: {fileID: 0}
   _LoopClip: 0
   _TestingSource: {fileID: 0}

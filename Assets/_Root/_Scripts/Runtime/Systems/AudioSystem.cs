@@ -16,7 +16,7 @@ public class AudioSystem : Singleton<AudioSystem>
 	[SerializeField, PropertyOrder(-1)]
 	private bool _Log;
 
-	[SerializeField, Clamp(0, int.MaxValue)]
+	[SerializeField, Clamp(1, int.MaxValue)]
 	private int _MaxAudioSources = 50;
 
 	private readonly Dictionary<AudioSource, Coroutine> _AudioSourceCoroutines =

@@ -63,6 +63,10 @@ MonoBehaviour:
   description: A basic scene with some objects.
   preview: {fileID: -7056053934753051837}
   dependencies:
+  - dependency: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    instantiationMode: 1
+  - dependency: {fileID: 5212787080492339880, guid: d0e0e38d221df4c43a40be5bd4f3554f, type: 3}
+    instantiationMode: 1
   - dependency: {fileID: 2800000, guid: 32b23d5d74f3aee4f9364e34e2f59379, type: 3}
     instantiationMode: 1
   - dependency: {fileID: 3854588261816579023, guid: 5cb9216582c3269438b9be9542dba5c5, type: 3}

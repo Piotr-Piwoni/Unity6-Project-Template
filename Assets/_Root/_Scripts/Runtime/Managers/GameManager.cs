@@ -9,9 +9,14 @@ namespace PROJECTNAME.Managers
 public class GameManager : PersistentSingleton<GameManager>
 {
 	public GameState CurrentState => _CurrentState;
+	public GameObject Player => _Player;
 
 	[SerializeField, ReadOnly]
 	private GameState _CurrentState = GameState.Playing;
+	[SerializeField]
+	private GameObject _PlayerPrefab;
+	[SerializeField, ReadOnly]
+	private GameObject _Player;
 	[SerializeField]
 	private AudioClip _MusicClip;
 
@@ -21,6 +26,11 @@ public class GameManager : PersistentSingleton<GameManager>
 	{
 		base.Awake();
 		_PreviousState = _CurrentState;
+
+		// Get the Player if it already exists, otherwise create one if possible.
+		_Player = GameObject.FindGameObjectWithTag("Player");
+		if (!_Player && _PlayerPrefab)
+			_Player = Instantiate(_PlayerPrefab);
 	}
 
 	private void Start()
