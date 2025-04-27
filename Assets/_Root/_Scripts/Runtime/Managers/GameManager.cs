@@ -1,4 +1,5 @@
 ﻿using EditorAttributes;
+using PROJECTNAME.Systems;
 using PROJECTNAME.Utilities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,13 +12,22 @@ public class GameManager : PersistentSingleton<GameManager>
 
 	[SerializeField, ReadOnly]
 	private GameState _CurrentState = GameState.Playing;
+	[SerializeField]
+	private AudioClip _MusicClip;
 
 	private GameState _PreviousState;
 
+	protected override void Awake()
+	{
+		base.Awake();
+		_PreviousState = _CurrentState;
+	}
 
 	private void Start()
 	{
-		_PreviousState = _CurrentState;
+		// If a music clip is provided, play the music.
+		if (_MusicClip)
+			AudioSystem.Instance.PlayMusic(_MusicClip);
 	}
 
 	private void Update()
@@ -52,7 +62,6 @@ public class GameManager : PersistentSingleton<GameManager>
 
 	public override void OnSceneChange(Scene scene, LoadSceneMode mode)
 	{
-		Debug.Log("Scene Change.");
 	}
 
 	public enum GameState
