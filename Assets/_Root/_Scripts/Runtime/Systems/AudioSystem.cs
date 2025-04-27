@@ -21,9 +21,9 @@ public class AudioSystem : Singleton<AudioSystem>
 
 	private readonly Dictionary<AudioSource, Coroutine> _AudioSourceCoroutines =
 		new();
-	private ObjectPool<AudioSource> _AudioSourcePool;
 	private AudioMixer _Mixer;
 	private AudioSource _MusicSrc;
+	private ObjectPool<AudioSource> _AudioSourcePool;
 
 	protected override void Awake()
 	{
@@ -67,10 +67,16 @@ public class AudioSystem : Singleton<AudioSystem>
 
 		// Set up the AudioSource.
 		// If position was provided, turn the current audio source into 3D sound.
-		if (position.HasValue)
+		if (position.HasValue && position.Value != Vector3.zero)
 		{
 			audioSrc.transform.position = position.Value;
 			audioSrc.spatialBlend = 1f; //< 3D sound.
+		}
+		else
+		{
+			// Reset.
+			audioSrc.transform.position = Vector3.zero;
+			audioSrc.spatialBlend = 0f;
 		}
 
 		// Based on the AudioType find the corresponding mixer group.
@@ -113,11 +119,13 @@ public class AudioSystem : Singleton<AudioSystem>
 	///     Plays the provided audio clip on loop.
 	/// </summary>
 	/// <param name="clip">The audio to play.</param>
-	public void PlayMusic(AudioClip clip)
+	/// <param name="volume">The audio's volume.</param>
+	public void PlayMusic(AudioClip clip, float volume = 1f)
 	{
 		// Stop any existing music before playing a new one.
 		if (_MusicSrc.isPlaying) _MusicSrc.Stop();
 
+		_MusicSrc.volume = volume;
 		_MusicSrc.clip = clip;
 		_MusicSrc.Play();
 	}
