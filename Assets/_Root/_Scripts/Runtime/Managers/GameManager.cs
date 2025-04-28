@@ -29,6 +29,7 @@ public class GameManager : PersistentSingleton<GameManager>
 	private AudioClip _MusicClip;
 
 	private GameState _PreviousState;
+	private Spawner _PlayerSpawner;
 
 
 	protected override void Awake()
@@ -36,16 +37,15 @@ public class GameManager : PersistentSingleton<GameManager>
 		base.Awake();
 		_PreviousState = _CurrentState;
 
-		// Get the Player if it already exists, otherwise create one if possible.
-		_Player = GameObject.FindGameObjectWithTag("Player");
-		if (!_Player && _PlayerPrefab)
-			_Player = Instantiate(_PlayerPrefab);
-
+		HandlePlayerInit();
 		GetCamera();
 	}
 
 	private void Start()
 	{
+		// Hide the cursor on game start.
+		Cursor.lockState = CursorLockMode.Locked;
+
 		// If a music clip is provided, play the music.
 		if (_MusicClip)
 			AudioSystem.Instance.PlayMusic(_MusicClip);
@@ -79,7 +79,6 @@ public class GameManager : PersistentSingleton<GameManager>
 		_PreviousState = _CurrentState;
 		_CurrentState = newState;
 	}
-
 
 	public override void OnSceneChange(Scene scene, LoadSceneMode mode)
 	{
@@ -123,6 +122,33 @@ public class GameManager : PersistentSingleton<GameManager>
 		if (!_Camera) return;
 		if (_Camera.transform.parent == _Player?.transform) return;
 		_Camera.transform.SetParent(_Player ? _Player.transform : transform);
+	}
+
+	// Handle Player initialisation.
+	private void HandlePlayerInit()
+	{
+		// Get the Player if it already exists, otherwise create one if possible.
+		_Player = GameObject.FindGameObjectWithTag("Player");
+		if (!_Player && _PlayerPrefab)
+			_Player = Instantiate(_PlayerPrefab);
+
+		// Try to obtain the Player spawner.
+		var spawners = FindObjectsByType<Spawner>(FindObjectsSortMode.None);
+		foreach (Spawner spawner in spawners)
+		{
+			if (spawner.m_SpawnerTag != SpawnerTag.Player) continue;
+			_PlayerSpawner = spawner;
+			break;
+		}
+
+		// If the Player spawner was found, spawn the Player there.
+		if (_PlayerSpawner)
+			_PlayerSpawner.Spawn(_Player.transform, true);
+		else
+		{
+			Debug.Log("<color=yellow>Player spawner was not found " +
+			          "in the scene.</color>");
+		}
 	}
 
 	public enum GameState

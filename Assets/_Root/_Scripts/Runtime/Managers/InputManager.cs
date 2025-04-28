@@ -15,15 +15,21 @@ public class InputManager : PersistentSingleton<InputManager>
 	public event Action OnInteractionPressed;
 	public event Action OnJumpPressed;
 	public event Action OnMovePressed;
-	public event Action<string> OnDeviceChanged;
+	public event Action<DeviceType> OnDeviceChanged;
 
-	public string CurrentControlScheme { get; private set; }
+	public DeviceType CurrentDeviceType => _CurrentDeviceType;
+	public Vector2 LookInput { get; private set; } = Vector2.zero;
 	public Vector2 MoveInput { get; private set; } = Vector2.zero;
+
+	[Header("Input Manager Values"), SerializeField, ReadOnly]
+	private DeviceType _CurrentDeviceType = DeviceType.Unknown;
 
 	[Header("Input References"), SerializeField, ReadOnly, HideProperty]
 	private PlayerInput _PlayerInput;
 	[SerializeField, HideProperty]
 	private InputActionReference _MoveAction;
+	[SerializeField, HideProperty]
+	private InputActionReference _LookAction;
 	[SerializeField, HideProperty]
 	private InputActionReference _JumpAction;
 	[SerializeField, HideProperty]
@@ -38,9 +44,9 @@ public class InputManager : PersistentSingleton<InputManager>
 
 	// Decorative Holders.
 	[SerializeField, FoldoutGroup("Settings", true, nameof(_PlayerInput),
-		 nameof(_MoveAction), nameof(_JumpAction), nameof(_AttackAction),
-		 nameof(_InteractionAction), nameof(_GameplayActionMap),
-		 nameof(_UIActionMap)), PropertyOrder(-1)]
+		 nameof(_MoveAction), nameof(_LookAction), nameof(_JumpAction),
+		 nameof(_AttackAction), nameof(_InteractionAction),
+		 nameof(_GameplayActionMap), nameof(_UIActionMap)), PropertyOrder(-1)]
 	private Void _SettingsGroupHolder;
 
 
@@ -73,7 +79,7 @@ public class InputManager : PersistentSingleton<InputManager>
 		base.OnEnable();
 		BindInput();
 		_PlayerInput.onControlsChanged += OnControlsChanged;
-		CurrentControlScheme = _PlayerInput.currentControlScheme;
+		UpdateCurrentDeviceType(_PlayerInput.currentControlScheme);
 	}
 
 	public override void OnDisable()
@@ -100,15 +106,18 @@ public class InputManager : PersistentSingleton<InputManager>
 		}
 
 		if (_ActionMapDictionary.TryGetValue(actionMap, out var actionMapName))
-			_PlayerInput.SwitchCurrentControlScheme(actionMapName);
+			_PlayerInput.SwitchCurrentActionMap(actionMapName);
 		else
-			Debug.LogError($"No action map found for {actionMap}");
+			Debug.LogError($"No action map found for \"{actionMap}\"");
 	}
 
 	private void BindInput()
 	{
 		_MoveAction.action.performed += OnMovePerformed;
 		_MoveAction.action.canceled += OnMoveCanceled;
+		_LookAction.action.performed += OnLookPerformed;
+		_LookAction.action.canceled += OnLookCanceled;
+
 
 		_JumpAction.action.performed += ctx => OnJumpPressed?.Invoke();
 		_AttackAction.action.performed += ctx => OnAttackPressed?.Invoke();
@@ -147,21 +156,18 @@ public class InputManager : PersistentSingleton<InputManager>
 	// Handles changing the control scheme.
 	private void OnControlsChanged(PlayerInput input)
 	{
-		if (input.currentControlScheme == CurrentControlScheme) return;
+		if (input.currentControlScheme == null) return;
+		UpdateCurrentDeviceType(input.currentControlScheme);
+	}
 
-		// Update the currently used control scheme.
-		CurrentControlScheme = input.currentControlScheme;
-		Debug.Log($"Control Scheme Changed: {CurrentControlScheme}");
+	private void OnLookCanceled(InputAction.CallbackContext context)
+	{
+		LookInput = Vector2.zero;
+	}
 
-		// Based on name, get the correct scheme name.
-		var deviceName = CurrentControlScheme switch
-		{
-			"Keyboard&Mouse" => "KeyboardMouse",
-			"Gamepad" => "Gamepad",
-			_ => "Unknown"
-		};
-
-		OnDeviceChanged?.Invoke(deviceName);
+	private void OnLookPerformed(InputAction.CallbackContext context)
+	{
+		LookInput = context.ReadValue<Vector2>();
 	}
 
 	private void OnMoveCanceled(InputAction.CallbackContext context)
@@ -179,6 +185,8 @@ public class InputManager : PersistentSingleton<InputManager>
 	{
 		_MoveAction.action.performed -= OnMovePerformed;
 		_MoveAction.action.canceled -= OnMoveCanceled;
+		_LookAction.action.performed -= OnLookPerformed;
+		_LookAction.action.canceled -= OnLookCanceled;
 
 		_MoveAction.action.performed -= ctx => OnMovePressed?.Invoke();
 		_JumpAction.action.performed -= ctx => OnJumpPressed?.Invoke();
@@ -188,11 +196,35 @@ public class InputManager : PersistentSingleton<InputManager>
 
 		DisableAllActions();
 	}
+
+	// And internal function used to convert the
+	// "PlayerInput.currentControlScheme" from string to DeviceType.
+	private void UpdateCurrentDeviceType(string controlScheme)
+	{
+		DeviceType newDevice = controlScheme switch
+		{
+			"Keyboard&Mouse" => DeviceType.KeyboardMouse,
+			"Gamepad" => DeviceType.Gamepad,
+			_ => DeviceType.Unknown
+		};
+
+		if (newDevice == _CurrentDeviceType) return;
+		_CurrentDeviceType = newDevice;
+		Debug.Log($"Device Changed: <color=red>{_CurrentDeviceType}</color>");
+		OnDeviceChanged?.Invoke(_CurrentDeviceType);
+	}
 }
 
 public enum ActionMap
 {
 	Gameplay = 0,
 	UI = 1
+}
+
+public enum DeviceType
+{
+	Unknown = -1,
+	KeyboardMouse = 0,
+	Gamepad = 1
 }
 }
