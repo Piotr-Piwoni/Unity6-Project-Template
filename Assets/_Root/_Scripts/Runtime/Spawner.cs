@@ -7,10 +7,11 @@ namespace PROJECTNAME
 [ExecuteInEditMode]
 public class Spawner : MonoBehaviour
 {
-	public SpawnerTag m_SpawnerTag;
+	public SpawnerTag SpawnerTag;
 
 	[SerializeField]
 	private GameObject _SpawnablePrefab;
+
 
 	private void Awake()
 	{
@@ -28,7 +29,8 @@ public class Spawner : MonoBehaviour
 	public void Spawn(Transform spawnObject, bool facingSame = false)
 	{
 		spawnObject.position = transform.position;
-		if (facingSame) spawnObject.rotation = transform.rotation;
+		if (facingSame)
+			spawnObject.rotation = transform.rotation;
 	}
 
 	[Button("Spawn")]
@@ -36,10 +38,10 @@ public class Spawner : MonoBehaviour
 	{
 		if (!_SpawnablePrefab)
 		{
-#if UNITY_EDITOR
+			#if UNITY_EDITOR
 			if (!EditorApplication.isPlaying)
-				Debug.Log($"{name} is missing a spawnable prefab!");
-#endif
+				Debug.LogWarning($"{name} is missing a spawnable prefab!");
+			#endif
 			return;
 		}
 

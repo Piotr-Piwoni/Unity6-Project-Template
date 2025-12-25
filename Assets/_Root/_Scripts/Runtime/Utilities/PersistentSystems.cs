@@ -23,14 +23,14 @@ public class PersistentSystems : PersistentSingleton<PersistentSystems>
 			handler.OnSceneChange(scene, mode);
 	}
 
-	// Register a system that implements ISceneChangeHandler.
+	/// Register a system that implements ISceneChangeHandler.
 	public void RegisterSystem(ISceneChangeHandler handler)
 	{
 		if (!_SceneChangeHandlers.Contains(handler))
 			_SceneChangeHandlers.Add(handler);
 	}
 
-	// Remove a system that implements ISceneChangeHandler.
+	/// Remove a system that implements ISceneChangeHandler.
 	public void RemoveSystem(ISceneChangeHandler handler)
 	{
 		if (_SceneChangeHandlers.Contains(handler))

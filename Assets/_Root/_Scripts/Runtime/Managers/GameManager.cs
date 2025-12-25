@@ -56,21 +56,21 @@ public class GameManager : PersistentSingleton<GameManager>
 		// Handle game functionality differently based on current state.
 		switch (_CurrentState)
 		{
-			case GameState.MainMenu:
-				//* Logic for when the game is in the Main Menu.
-				break;
-			case GameState.Playing:
-				//* Logic for when the game is actually playing.
-				break;
-			case GameState.Talking:
-				//* Logic for when talking occurs in the game.
-				break;
-			case GameState.Pause:
-				//* Logic for when the game is Paused.
-				break;
-			case GameState.Menu:
-				//* Logic for when the game is in a UI menu.
-				break;
+		case GameState.MainMenu:
+			// Logic for when the game is in the Main Menu.
+			break;
+		case GameState.Playing:
+			// Logic for when the game is actually playing.
+			break;
+		case GameState.Talking:
+			// Logic for when talking occurs in the game.
+			break;
+		case GameState.Pause:
+			// Logic for when the game is paused.
+			break;
+		case GameState.Menu:
+			// Logic for when the game is in a UI menu.
+			break;
 		}
 	}
 
@@ -84,70 +84,76 @@ public class GameManager : PersistentSingleton<GameManager>
 	{
 	}
 
-	// Try to get the camera in the scene.
+	/// Try to obtain the camera in the scene.
 	private void GetCamera()
 	{
 		// Locate the main camera.
-		var cameraObjs = FindObjectsByType<Camera>(FindObjectsInactive.Include,
+		Camera[] cameraObjs = FindObjectsByType<Camera>(
+			FindObjectsInactive.Include,
 			FindObjectsSortMode.None);
+
 		foreach (Camera camObj in cameraObjs)
 			if (camObj.CompareTag("MainCamera"))
 				_Camera = camObj;
 
 		if (!_Camera)
 		{
-			Debug.LogError("No Camera found on the scene!");
+			Debug.LogError("No Camera found in the scene!");
 			return;
 		}
 
-		// Try to get the CinemachineCamera from the Camera's parent.
+		// Try to get the CinemachineCamera component from the camera's parent.
 		_CinemachineCam = _Camera.GetComponentInParent<CinemachineCamera>(true);
 		if (!_CinemachineCam)
 		{
 			Debug.LogWarning("A Cinemachine Camera was not found in the " +
-			                 "scene or is not the parent object of the Camera.");
+							"scene or is not the parent object of the Camera.");
 		}
 
-		// If there's a Player, move the cameras to the Player, otherwise move
+		// If there's a player, move the cameras to the player, otherwise move
 		// them to the Game Manager.
 		if (_CinemachineCam)
 		{
-			if (_CinemachineCam.transform.parent == _Player?.transform) return;
+			if (_CinemachineCam.transform.parent == _Player?.transform)
+				return;
 			_CinemachineCam.transform.SetParent(_Player
-				? _Player.transform
-				: transform);
+													? _Player.transform
+													: transform);
 			return;
 		}
 
-		if (!_Camera) return;
-		if (_Camera.transform.parent == _Player?.transform) return;
+		if (!_Camera || _Camera.transform.parent == _Player?.transform)
+			return;
 		_Camera.transform.SetParent(_Player ? _Player.transform : transform);
 	}
 
-	// Handle Player initialisation.
+
+	/// Handle Player initialization.
 	private void HandlePlayerInit()
 	{
-		// Get the Player if it already exists, otherwise create one if possible.
+		// Get the player if it already exists, otherwise create one if possible.
 		_Player = GameObject.FindGameObjectWithTag("Player");
 		if (!_Player && _PlayerPrefab)
 			_Player = Instantiate(_PlayerPrefab);
 
-		// Try to obtain the Player spawner.
-		var spawners = FindObjectsByType<Spawner>(FindObjectsSortMode.None);
+		// Try to obtain the player spawner.
+		Spawner[] spawners = FindObjectsByType<Spawner>(
+			FindObjectsSortMode.None);
 		foreach (Spawner spawner in spawners)
 		{
-			if (spawner.m_SpawnerTag != SpawnerTag.Player) continue;
+			if (spawner.SpawnerTag != SpawnerTag.Player)
+				continue;
 			_PlayerSpawner = spawner;
 			break;
 		}
 
-		// If the Player spawner was found, spawn the Player there.
+		// If spawner found, spawn the player there.
 		if (_PlayerSpawner)
 			_PlayerSpawner.Spawn(_Player.transform, true);
 		else
 		{
 			Debug.Log("<color=yellow>Player spawner was not found " +
-			          "in the scene.</color>");
+					"in the scene.</color>");
 		}
 	}
 
