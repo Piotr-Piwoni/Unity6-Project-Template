@@ -120,7 +120,7 @@ public static class AssemblyDefUpdater
 			var changed = false;
 
 			// Replace old name in USING statements.
-			var usingPattern = new Regex(@"using\s+([\w\.]+);");
+			var usingPattern = new Regex(@"using\s+(?:\w+\s*=\s*)?([\w\.]+);");
 			content = usingPattern.Replace(content, match =>
 			{
 				string value = match.Groups[1].Value;
@@ -129,7 +129,8 @@ public static class AssemblyDefUpdater
 
 				changed = true;
 				string replaced = value.Replace(oldName, productName);
-				return $"using {replaced};";
+				// Preserve alias if present.
+				return match.Value.Replace(value, replaced);
 			});
 
 			// Replace in namespace declarations.
