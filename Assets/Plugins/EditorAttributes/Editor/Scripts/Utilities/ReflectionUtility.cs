@@ -8,7 +8,7 @@ using System.Collections;
 namespace EditorAttributes.Editor.Utility
 {
 	public static class ReflectionUtility
-    {
+	{
 		public const BindingFlags BINDING_FLAGS = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.FlattenHierarchy;
 
 		/// <summary>
@@ -27,7 +27,7 @@ namespace EditorAttributes.Editor.Utility
 			// If the field null we try to see if its inside a serialized object
 			if (fieldInfo == null)
 			{
-				var serializedObjectType = GetNestedObjectType(property, out _);				
+				var serializedObjectType = GetNestedObjectType(property, out _);
 
 				if (serializedObjectType != null)
 					fieldInfo = serializedObjectType.GetField(fieldName, BINDING_FLAGS);
@@ -56,7 +56,7 @@ namespace EditorAttributes.Editor.Utility
 			{
 				var serializedObjectType = GetNestedObjectType(property, out _);
 
-				if (serializedObjectType != null) 
+				if (serializedObjectType != null)
 					propertyInfo = serializedObjectType.GetProperty(propertyName, BINDING_FLAGS);
 			}
 
@@ -98,7 +98,7 @@ namespace EditorAttributes.Editor.Utility
 
 					foreach (var function in functions)
 					{
-						if (function.Name == functionName) 
+						if (function.Name == functionName)
 							methodInfo = function;
 					}
 				}
@@ -119,7 +119,7 @@ namespace EditorAttributes.Editor.Utility
 
 				foreach (var function in functions)
 				{
-					if (function.Name == functionName) 
+					if (function.Name == functionName)
 						return function;
 				}
 
@@ -128,7 +128,7 @@ namespace EditorAttributes.Editor.Utility
 		}
 
 		/// <summary>
-		/// Finds a member from the target type
+		/// Finds a member from the target and it's inherited types
 		/// </summary>
 		/// <param name="memberName">The name of the member to look for</param>
 		/// <param name="targetType">The type to get the member from</param>
@@ -137,28 +137,29 @@ namespace EditorAttributes.Editor.Utility
 		/// <returns>The member info of the specified member type</returns>
 		public static MemberInfo FindMember(string memberName, Type targetType, BindingFlags bindingFlags, MemberTypes memberType)
 		{
-			switch (memberType)
+			MemberInfo memberInfo = null;
+
+			while (targetType != null)
 			{
-				case MemberTypes.Field:
+				switch (memberType)
 				{
-					if (targetType != null)
-						return targetType.GetField(memberName, bindingFlags);
-				}
-				break;
+					case MemberTypes.Field:
+						memberInfo = targetType.GetField(memberName, bindingFlags);
+						break;
 
-				case MemberTypes.Property:
-				{
-					if (targetType != null)
-						return targetType.GetProperty(memberName, bindingFlags);
-				}
-				break;
+					case MemberTypes.Property:
+						memberInfo = targetType.GetProperty(memberName, bindingFlags);
+						break;
 
-				case MemberTypes.Method:
-				{
-					if (targetType != null)
-						return targetType.GetMethod(memberName, bindingFlags);
+					case MemberTypes.Method:
+						memberInfo = targetType.GetMethod(memberName, bindingFlags);
+						break;
 				}
-				break;
+
+				if (memberInfo != null)
+					return memberInfo;
+
+				targetType = targetType.BaseType;
 			}
 
 			return null;
@@ -262,16 +263,30 @@ namespace EditorAttributes.Editor.Utility
 		}
 
 		/// <summary>
-		/// Checks to see if a seralized property is a list or array
+		/// Checks to see if a type is a list or array
 		/// </summary>
-		/// <param name="property">The serialized property to check</param>
-		/// <returns>True if the property is a list or array, false otherwise</returns>
-		public static bool IsPropertyCollection(SerializedProperty property)
-		{
-			var arrayField = FindField(property.propertyPath.Split(".")[0], property);
-			var memberInfoType = GetMemberInfoType(arrayField);
+		/// <param name="type">The type to check</param>
+		/// <returns>True if the type is a list or array</returns>
+		public static bool IsTypeCollection(Type type) => type.IsArray || type.GetInterfaces().Contains(typeof(IList));
 
-			return memberInfoType.IsArray || memberInfoType.GetInterfaces().Contains(typeof(IList));
+		/// <summary>
+		/// Checks to see if a member has one of the specified attributes
+		/// </summary>
+		/// <param name="memberInfo">The member to check</param>
+		/// <param name="attributeTypes">The attribute types</param>
+		/// <returns>True if the member has at least one of specified attributes</returns>
+		public static bool HasAnyAttributes(MemberInfo memberInfo, params Type[] attributeTypes)
+		{
+			if (memberInfo == null)
+				return false;
+
+			foreach (var attribute in attributeTypes)
+			{
+				if (memberInfo.GetCustomAttribute(attribute) != null)
+					return true;
+			}
+
+			return false;
 		}
 
 		/// <summary>
@@ -315,13 +330,13 @@ namespace EditorAttributes.Editor.Utility
 			try
 			{
 				nestedObject = property.serializedObject.targetObject;
-				var cutPathIndex = property.propertyPath.LastIndexOf('.');
+				int cutPathIndex = property.propertyPath.LastIndexOf('.');
 
 				if (cutPathIndex == -1) // If the cutPathIndex is -1 it means that the member is not nested and we return null
 					return null;
 
-				var path = property.propertyPath[..cutPathIndex].Replace(".Array.data[", "[");
-				var elements = path.Split('.');
+				string path = property.propertyPath[..cutPathIndex].Replace(".Array.data[", "[");
+				string[] elements = path.Split('.');
 
 				foreach (var element in elements)
 				{
@@ -329,7 +344,7 @@ namespace EditorAttributes.Editor.Utility
 					{
 						var elementName = element[..element.IndexOf("[")];
 						var index = Convert.ToInt32(element[element.IndexOf("[")..].Replace("[", "").Replace("]", ""));
-					
+
 						nestedObject = GetValue(nestedObject, elementName, index);
 					}
 					else
@@ -349,14 +364,14 @@ namespace EditorAttributes.Editor.Utility
 
 		private static object GetValue(object source, string name, int index)
 		{
-			if (GetValue(source, name) is not IEnumerable enumerable) 
+			if (GetValue(source, name) is not IEnumerable enumerable)
 				return null;
 
 			var enumerator = enumerable.GetEnumerator();
 
 			for (int i = 0; i <= index; i++)
 			{
-				if (!enumerator.MoveNext()) 
+				if (!enumerator.MoveNext())
 					return null;
 			}
 

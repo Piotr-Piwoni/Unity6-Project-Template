@@ -4,14 +4,15 @@ using UnityEditor;
 using System.Reflection;
 using System.Collections;
 using UnityEngine.UIElements;
+using UnityEditor.UIElements;
 using System.Collections.Generic;
 using EditorAttributes.Editor.Utility;
 
 namespace EditorAttributes.Editor
 {
 	[CustomPropertyDrawer(typeof(DropdownAttribute))]
-    public class DropdownDrawer : PropertyDrawerBase
-    {
+	public class DropdownDrawer : PropertyDrawerBase
+	{
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
 			var dropdownAttribute = attribute as DropdownAttribute;
@@ -23,8 +24,9 @@ namespace EditorAttributes.Editor
 
 			var displayValues = GetDisplayValues(collectionInfo, dropdownAttribute, property, propertyValues);
 
-			var dropdownField = IsCollectionValid(displayValues) ? new DropdownField(property.displayName, displayValues, GetDropdownDefaultValue(displayValues, property))
-				: new DropdownField(property.displayName, new List<string>() { "NULL" }, 0);
+			List<string> nullList = new() { "NULL" };
+
+			DropdownField dropdownField = IsCollectionValid(displayValues) ? new(property.displayName, displayValues, GetDropdownDefaultValueIndex(propertyValues, property)) : new(property.displayName, nullList, 0);
 
 			dropdownField.tooltip = property.tooltip;
 			dropdownField.AddToClassList(BaseField<Void>.alignedFieldUssClassName);
@@ -35,6 +37,18 @@ namespace EditorAttributes.Editor
 			{
 				if (!property.hasMultipleDifferentValues)
 					SetPropertyValue(property, callback.newValue, dropdownAttribute, propertyValues, dropdownField, collectionInfo);
+			});
+
+			dropdownField.TrackPropertyValue(property, (trackedProperty) =>
+			{
+				if (propertyValues.Contains(trackedProperty.boxedValue.ToString()))
+				{
+					dropdownField.SetValueWithoutNotify(displayValues[propertyValues.IndexOf(trackedProperty.boxedValue.ToString())]);
+				}
+				else
+				{
+					Debug.LogWarning($"The value <b>{trackedProperty.boxedValue}</b> set to the <b>{trackedProperty.name}</b> variable is not a value available in the dropdown", trackedProperty.serializedObject.targetObject);
+				}
 			});
 
 			if (dropdownField.value != "NULL" && !HasMismatchedDisplayCollectionCounts(dropdownAttribute, propertyValues, displayValues))
@@ -60,6 +74,12 @@ namespace EditorAttributes.Editor
 					dropdownField.choices = currentDisplayValues;
 
 					propertyValues = currentPropertyValues;
+				}
+				else
+				{
+					dropdownField.choices = nullList;
+					propertyValues = nullList;
+					displayValues = nullList;
 				}
 
 				if (HasMismatchedDisplayCollectionCounts(dropdownAttribute, propertyValues, displayValues))
@@ -145,11 +165,11 @@ namespace EditorAttributes.Editor
 			return displayStrings;
 		}
 
-		private string GetDropdownDefaultValue(List<string> collectionValues, SerializedProperty property)
+		private int GetDropdownDefaultValueIndex(List<string> collectionValues, SerializedProperty property)
 		{
 			var propertyStringValue = GetPropertyValueAsString(property);
 
-			return collectionValues.Contains(propertyStringValue) ? propertyStringValue : collectionValues[0];
+			return collectionValues.Contains(propertyStringValue) ? collectionValues.IndexOf(propertyStringValue) : 0;
 		}
 
 		private bool IsDictionary(MemberInfo collectionInfo, SerializedProperty serializedProperty, out IDictionary dictionary)
@@ -159,6 +179,6 @@ namespace EditorAttributes.Editor
 			dictionary = collectionValue as IDictionary;
 
 			return collectionValue is IDictionary;
-		}		
+		}
 	}
 }

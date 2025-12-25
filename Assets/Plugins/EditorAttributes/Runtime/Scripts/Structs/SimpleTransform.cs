@@ -4,19 +4,19 @@ using UnityEngine;
 namespace EditorAttributes
 {
 	/// <summary>
-	/// A simple serializable transform struct that can be used with the DrawHandle Attribute or for data serialization
+	/// A simple unity serializable transform struct that can be used with the DrawHandle Attribute
 	/// </summary>
 	[Serializable]
 	public struct SimpleTransform
-    {
-		public Vector3 position; 
+	{
+		public Vector3 position;
 		public Vector3 rotation;
 		public Vector3 scale;
 
 		public readonly Quaternion QuaternionRotation => Quaternion.Euler(rotation);
 
 		/// <summary>
-		/// A simple serializable transform struct that can be used with the DrawHandle Attribute or for data serialization
+		/// A simple serializable transform struct that can be used with the DrawHandle Attribute
 		/// </summary>
 		/// <param name="position">Input position</param>
 		/// <param name="rotation">Input rotation in angles</param>
@@ -29,7 +29,7 @@ namespace EditorAttributes
 		}
 
 		/// <summary>
-		/// A simple serializable transform struct that can be used with the DrawHandle Attribute or for data serialization
+		/// A simple serializable transform struct that can be used with the DrawHandle Attribute
 		/// </summary>
 		/// <param name="position">Input position</param>
 		/// <param name="rotation">Input rotation</param>
@@ -42,7 +42,7 @@ namespace EditorAttributes
 		}
 
 		/// <summary>
-		/// A simple serializable transform struct that can be used with the DrawHandle Attribute or for data serialization
+		/// A simple serializable transform struct that can be used with the DrawHandle Attribute
 		/// </summary>
 		/// <param name="transform">Input transform</param>
 		public SimpleTransform(Transform transform)
