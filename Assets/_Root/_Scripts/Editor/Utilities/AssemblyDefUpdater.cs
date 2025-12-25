@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -14,12 +15,12 @@ public static class AssemblyDefUpdater
 	[MenuItem("Tools/Update Assembly Definitions and Namespaces")]
 	public static void UpdateAssemblyDefinitions()
 	{
-		// Remove whitespaces from project name.
-		string productName =
-			PlayerSettings.productName.Replace(" ", string.Empty);
+		// Remove whitespaces from product name.
+		string productName = PlayerSettings.productName.Replace(" ",
+				string.Empty);
 
 		const string ROOT_FOLDER_PATH = "Assets/_Root";
-		// Construct a path to the project name history file.
+		// Construct a path to the product name history file.
 		string historyPath = Path.Combine(Application.dataPath,
 										"_Root/_Scripts/Editor",
 										_HISTORY_FILE_NAME);
@@ -30,16 +31,37 @@ public static class AssemblyDefUpdater
 			return;
 		}
 
-		// Load an old name or default to "Project".
-		string oldName = File.Exists(historyPath)
-							? File.ReadAllText(historyPath).Trim()
-							: "Project";
-
-		// Lists of scripts and assembly definitions.
+		// List of filtered assembly definitions.
 		string[] asmdefFiles = Directory.GetFiles(ROOT_FOLDER_PATH, "*.asmdef",
 												SearchOption.AllDirectories);
+		asmdefFiles =
+			Array.FindAll(asmdefFiles, file => !ShouldIgnorePath(file));
+
+		// Load an old name if "LastProductName.txt" exits,
+		// if not, infer the namespace.
+		string oldName;
+		if (File.Exists(historyPath))
+			oldName = File.ReadAllText(historyPath).Trim();
+		else
+		{
+			// If namespaces already match, nothing to do.
+			string inferredName = InferRootNamespace(asmdefFiles);
+			if (string.IsNullOrEmpty(inferredName) ||
+				inferredName == productName)
+			{
+				Debug.Log("Namespaces already matches the product name.");
+				return;
+			}
+
+			// Treat the inferred name as the old name.
+			oldName = inferredName;
+		}
+
+		// List of filtered scripts.
 		string[] scriptFiles = Directory.GetFiles(ROOT_FOLDER_PATH, "*.cs",
 												SearchOption.AllDirectories);
+		scriptFiles = Array.FindAll(scriptFiles,
+									file => !ShouldIgnorePath(file));
 
 		var changedAsmDefs = new ConcurrentBag<string>();
 		var changedScripts = new ConcurrentBag<string>();
@@ -48,6 +70,9 @@ public static class AssemblyDefUpdater
 		// --- Parallel Update of Assembly Definitions ---
 		Parallel.ForEach(asmdefFiles, file =>
 		{
+			if (ShouldIgnorePath(file))
+				return;
+
 			string[] lines = File.ReadAllLines(file);
 			var changed = false;
 
@@ -87,6 +112,9 @@ public static class AssemblyDefUpdater
 		// --- Parallel Update of Scripts ---
 		Parallel.ForEach(scriptFiles, file =>
 		{
+			if (ShouldIgnorePath(file))
+				return;
+
 			string content = File.ReadAllText(file);
 			string originalContent = content;
 			var changed = false;
@@ -124,7 +152,7 @@ public static class AssemblyDefUpdater
 			changedScripts.Add(file);
 		});
 
-		// Store the new project name.
+		// Store the new product name.
 		Directory.CreateDirectory(Path.GetDirectoryName(historyPath) ??
 								string.Empty);
 		File.WriteAllText(historyPath, productName);
@@ -136,7 +164,7 @@ public static class AssemblyDefUpdater
 		foreach (string file in changedScripts)
 			Debug.Log($"Updated using statements and/or namespace in: {file}");
 
-		// Refresh the project.
+		// Refresh the product.
 		anyChanges = changedAsmDefs.Count > 0 || changedScripts.Count > 0;
 		if (anyChanges)
 		{
@@ -145,6 +173,31 @@ public static class AssemblyDefUpdater
 		}
 		else
 			Debug.Log("No changes detected.");
+	}
+
+	private static string InferRootNamespace(string[] asmdefFiles)
+	{
+		foreach (string file in asmdefFiles)
+		{
+			string text = File.ReadAllText(file);
+			Match match = Regex.Match(text,
+									@"""rootNamespace""\s*:\s*""([\w\.]+)""");
+
+			if (!match.Success)
+				continue;
+
+			// Assume first segment is the product name.
+			return match.Groups[1].Value.Split('.')[0];
+		}
+
+		return string.Empty;
+	}
+
+	// INFO: Hardcoded to ignore the anything todo with demos.
+	private static bool ShouldIgnorePath(string path)
+	{
+		string lower = path.ToLowerInvariant();
+		return lower.Contains("/demo") || lower.Contains("\\demo");
 	}
 }
 }
