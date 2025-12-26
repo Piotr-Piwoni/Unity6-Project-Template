@@ -11,14 +11,13 @@ namespace PROJECTNAME.Managers
 public class UIManager : Singleton<UIManager>
 {
 	[SerializeField, PropertyOrder(-1),
-	 FoldoutGroup("Prefabs", nameof(_CrosshairCanvasPrefab))]
+	FoldoutGroup("Prefabs", nameof(_CrosshairCanvasPrefab))]
 	private Void _PrefabFoldoutGroupHolder;
 
 	[Header("UI Manager Values"), SerializeField, ReadOnly]
 	private Canvas _CrosshairCanvas;
 	[SerializeField, HideProperty]
 	private GameObject _CrosshairCanvasPrefab;
-
 	private readonly List<UIInputReactiveBase> _ReactiveUIs = new();
 
 
@@ -41,7 +40,8 @@ public class UIManager : Singleton<UIManager>
 
 	private void OnDisable()
 	{
-		if (!InputManager.Instance) return;
+		if (!InputManager.Instance)
+			return;
 
 		InputManager.Instance.OnDeviceChanged -= OnDeviceChanged;
 	}
@@ -56,15 +56,15 @@ public class UIManager : Singleton<UIManager>
 	{
 		switch (deviceType)
 		{
-			case DeviceType.KeyboardMouse:
-				Debug.Log("Showing Keyboard & Mouse UI.");
-				break;
-			case DeviceType.Gamepad:
-				Debug.Log("Showing Gamepad UI.");
-				break;
-			case DeviceType.Unknown:
-				throw new ArgumentOutOfRangeException(nameof(deviceType),
-					deviceType, null);
+		case DeviceType.KeyboardMouse:
+			Debug.Log("Showing Keyboard & Mouse UI.");
+			break;
+		case DeviceType.Gamepad:
+			Debug.Log("Showing Gamepad UI.");
+			break;
+		case DeviceType.Unknown:
+			throw new ArgumentOutOfRangeException(nameof(deviceType),
+												deviceType, null);
 		}
 
 		foreach (UIInputReactiveBase uiInputReactiveBase in _ReactiveUIs)

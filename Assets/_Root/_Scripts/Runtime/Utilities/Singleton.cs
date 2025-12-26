@@ -9,13 +9,12 @@ using UnityEngine.SceneManagement;
 namespace PROJECTNAME.Utilities
 {
 /// <summary>
-///     A static instance is similar to a singleton, but instead of destroying new
-///     instance, it overrides the current instance.
+///     A static instance is similar to a singleton, but instead of destroying
+///     a new instance, it overrides the current instance.
 ///     Great for resetting object state.
 /// </summary>
 /// <typeparam name="T">The class to make a static instance.</typeparam>
-public abstract class StaticInstance<T> : MonoBehaviour
-	where T : MonoBehaviour
+public abstract class StaticInstance<T> : MonoBehaviour where T : MonoBehaviour
 {
 	public static T Instance { get; private set; }
 
@@ -23,7 +22,8 @@ public abstract class StaticInstance<T> : MonoBehaviour
 	{
 		if (!Instance)
 			Instance = this as T;
-		else if (Instance != this) Destroy(gameObject);
+		else if (Instance != this)
+			Destroy(gameObject);
 	}
 
 	protected virtual void OnApplicationQuit()
@@ -38,8 +38,7 @@ public abstract class StaticInstance<T> : MonoBehaviour
 ///     original instance intact.
 /// </summary>
 /// <typeparam name="T">The class to make a singleton.</typeparam>
-public abstract class Singleton<T> : StaticInstance<T>
-	where T : MonoBehaviour
+public abstract class Singleton<T> : StaticInstance<T> where T : MonoBehaviour
 {
 	protected override void Awake()
 	{

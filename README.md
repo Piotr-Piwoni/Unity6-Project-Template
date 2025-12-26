@@ -1,2 +1,3 @@
-# Unity6-Project-Template
- A custom Unity project template made for Unity6. Uses URP and other assets. 
+# Unity6.3 Project Template
+
+A custom Unity project template made for Unity 6.3. Uses URP and other assets. 

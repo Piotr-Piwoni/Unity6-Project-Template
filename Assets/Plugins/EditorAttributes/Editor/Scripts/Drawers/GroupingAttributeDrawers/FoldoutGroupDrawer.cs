@@ -1,18 +1,16 @@
-using UnityEngine;
 using UnityEditor;
-using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
-using EditorAttributes.Editor.Utility;
 
 namespace EditorAttributes.Editor
 {
 	[CustomPropertyDrawer(typeof(FoldoutGroupAttribute))]
-    public class FoldoutGroupDrawer : PropertyDrawerBase
-    {
+	public class FoldoutGroupDrawer : PropertyDrawerBase
+	{
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
 			var foldoutGroup = attribute as FoldoutGroupAttribute;
-			var isFoldedSaveKey = $"{property.serializedObject.targetObject}_{property.propertyPath}_IsFolded";
+			var foldoutSaveKey = CreatePropertySaveKey(property, "IsFoldoutGroupFolded");
 
 			var root = new VisualElement();
 
@@ -21,7 +19,7 @@ namespace EditorAttributes.Editor
 				style = { unityFontStyleAndWeight = FontStyle.Bold },
 				text = foldoutGroup.GroupName,
 				tooltip = property.tooltip,
-				value = EditorPrefs.GetBool(isFoldedSaveKey)
+				value = EditorPrefs.GetBool(foldoutSaveKey)
 			};
 
 			if (foldoutGroup.DrawInBox)
@@ -29,36 +27,11 @@ namespace EditorAttributes.Editor
 
 			foreach (string variableName in foldoutGroup.FieldsToGroup)
 			{
-				var variableProperty = FindNestedProperty(property, GetSerializedPropertyName(variableName, property));
+				var propertyField = CreateField(variableName, property, root);
 
-				if (variableProperty != null)
-				{
-					var propertyField = new PropertyField(variableProperty);
-
-					// Slightly move foldouts for serialized objects
-					if (variableProperty.propertyType == SerializedPropertyType.Generic && variableProperty.type != "UnityEvent" && !ReflectionUtility.IsPropertyCollection(variableProperty))
-						propertyField.style.marginLeft = 10f;
-
-					propertyField.style.unityFontStyleAndWeight = FontStyle.Normal;
-
-					foldout.Add(propertyField);
-
-					ExecuteLater(propertyField, () =>
-					{
-						var label = propertyField.Q<Label>();
-
-						if (label != null)
-							label.style.marginRight = foldoutGroup.WidthOffset;
-					});
-				}
-				else
-				{
-					foldout.Add(new HelpBox($"{variableName} is not a valid field", HelpBoxMessageType.Error));
-					break;
-				}
+				foldout.Add(propertyField);
 			}
 
-			foldout.RegisterValueChangedCallback((callback) => EditorPrefs.SetBool(isFoldedSaveKey, callback.newValue));
 			root.Add(foldout);
 
 			ExecuteLater(foldout, () =>
@@ -66,9 +39,51 @@ namespace EditorAttributes.Editor
 				var toggle = foldout.Q<Toggle>();
 
 				toggle.style.backgroundColor = CanApplyGlobalColor ? EditorExtension.GLOBAL_COLOR / 3f : new Color(0.1f, 0.1f, 0.1f, 0.2f);
+
+				// Register this callback later since value changed callbacks are called on inspector initalization and we don't want to save values on initalization
+				foldout.RegisterValueChangedCallback((callback) => EditorPrefs.SetBool(foldoutSaveKey, callback.newValue));
 			});
 
 			return root;
+		}
+
+		private VisualElement CreateField(string variableName, SerializedProperty property, VisualElement root)
+		{
+			VisualElement field;
+
+			var variableProperty = FindNestedProperty(property, GetSerializedPropertyName(variableName, property));
+
+			if (variableProperty == null)
+				return new HelpBox($"<b>{variableName}</b> is not a valid field or property", HelpBoxMessageType.Error);
+
+			field = CreatePropertyField(variableProperty);
+
+			field.style.unityFontStyleAndWeight = FontStyle.Normal;
+
+			// Slightly move foldouts for serialized objects
+			if (variableProperty.propertyType == SerializedPropertyType.Generic && variableProperty.type != "UnityEvent" && !IsPropertyCollection(variableProperty))
+				field.style.marginLeft = 10f;
+
+			root.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+
+			void OnGeometryChanged(GeometryChangedEvent changeEvent)
+			{
+				// Force update this logic to make sure fields are visible
+				UpdateVisualElement(field, () =>
+				{
+					var hiddenField = field.Q<VisualElement>(HidePropertyDrawer.HIDDEN_PROPERTY_ID);
+
+					if (hiddenField != null)
+					{
+						hiddenField.name = GROUPED_PROPERTY_ID;
+						hiddenField.style.display = DisplayStyle.Flex;
+					}
+				}, 100L);
+
+				root.UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+			}
+
+			return field;
 		}
 	}
 }

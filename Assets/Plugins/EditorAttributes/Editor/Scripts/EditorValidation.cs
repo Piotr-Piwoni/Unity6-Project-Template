@@ -8,38 +8,30 @@ using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 using EditorAttributes.Editor.Utility;
 
+#if HAS_ADDRESSABLES_PACKAGE
+using UnityEditor.AddressableAssets;
+#endif
+
 namespace EditorAttributes.Editor
 {
 	[InitializeOnLoad]
 	public class EditorValidation : IPreprocessBuildWithReport
 	{
 		private static int BUILD_KILLERS;
-		private static bool DISABLE_BUILD_VALIDATION;
-
-		private const string MENU_ITEM_PATH = "Tools/EditorValidation/Disable Build Validation";
 
 		public int callbackOrder => 0;
 
-		static EditorValidation() => DISABLE_BUILD_VALIDATION = Menu.GetChecked(MENU_ITEM_PATH);
+		static EditorValidation() { }
 
 		public void OnPreprocessBuild(BuildReport report)
 		{
 			BUILD_KILLERS = 0;
 
-			if (!DISABLE_BUILD_VALIDATION)
+			if (!EditorAttributesSettings.instance.disableBuildValidation)
 				ValidateAll();
 
 			if (BUILD_KILLERS != 0)
 				throw new BuildFailedException("Validation Failed");
-		}
-
-		[MenuItem(MENU_ITEM_PATH, priority = 4)]
-		private static void ToggleBuildValidation()
-		{
-			DISABLE_BUILD_VALIDATION = !DISABLE_BUILD_VALIDATION;
-
-			Menu.SetChecked(MENU_ITEM_PATH, DISABLE_BUILD_VALIDATION);
-			EditorPrefs.SetBool(MENU_ITEM_PATH, DISABLE_BUILD_VALIDATION);
 		}
 
 		/// <summary>
@@ -69,7 +61,10 @@ namespace EditorAttributes.Editor
 			{
 				string scenePath = AssetDatabase.GUIDToAssetPath(sceneGuid);
 
-				if (IsPackageAsset(scenePath) || SceneUtility.GetBuildIndexByScenePath(scenePath) == -1)
+				if (IsPackageAsset(scenePath))
+					continue;
+
+				if (SceneUtility.GetBuildIndexByScenePath(scenePath) == -1 && !IsAddressable(sceneGuid))
 					continue;
 
 				var openedScene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
@@ -81,6 +76,29 @@ namespace EditorAttributes.Editor
 			}
 
 			Debug.Log($"Scenes Validated: <b>(Failed: {failedValidations}, Succeeded: {successfulValidations}, Total: {failedValidations + successfulValidations})</b>");
+		}
+
+		private static bool IsAddressable(string guid)
+		{
+#if HAS_ADDRESSABLES_PACKAGE
+			var settings = AddressableAssetSettingsDefaultObject.Settings;
+
+			if (settings == null)
+				return false;
+			
+			foreach (var group in settings.groups)
+			{
+				if (group == null || group.entries.Count == 0)
+					continue;
+
+				foreach (var entry in group.entries)
+				{
+					if (entry.guid == guid)
+						return true;
+				}
+			}
+#endif
+			return false;
 		}
 
 		/// <summary>

@@ -24,29 +24,27 @@ public class IconSwap : UIInputReactiveBase
 	{
 		switch (deviceType)
 		{
-			case DeviceType.KeyboardMouse:
-				if (!_KeyboardMouseIcon)
-				{
-					Debug.LogWarning(
-						$"{name} has no {nameof(_KeyboardMouseIcon)} assigned.");
-					break;
-				}
-
-				_Image.sprite = _KeyboardMouseIcon;
+		case DeviceType.KeyboardMouse:
+			if (!_KeyboardMouseIcon)
+			{
+				Debug.LogWarning($"{name} has no {nameof(_KeyboardMouseIcon)} assigned.");
 				break;
-			case DeviceType.Gamepad:
-				if (!_GamepadIcon)
-				{
-					Debug.LogWarning(
-						$"{name} has no {nameof(_GamepadIcon)} assigned.");
-					break;
-				}
+			}
 
-				_Image.sprite = _GamepadIcon;
+			_Image.sprite = _KeyboardMouseIcon;
+			break;
+		case DeviceType.Gamepad:
+			if (!_GamepadIcon)
+			{
+				Debug.LogWarning($"{name} has no {nameof(_GamepadIcon)} assigned.");
 				break;
-			case DeviceType.Unknown:
-				throw new ArgumentOutOfRangeException(nameof(deviceType),
-					deviceType, null);
+			}
+
+			_Image.sprite = _GamepadIcon;
+			break;
+		case DeviceType.Unknown:
+			throw new ArgumentOutOfRangeException(nameof(deviceType),
+												deviceType, null);
 		}
 	}
 }
