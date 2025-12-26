@@ -1,24 +1,24 @@
 using System;
 using System.Collections.Generic;
-using EditorAttributes;
 using PROJECTNAME.UI;
 using PROJECTNAME.Utilities;
+using Sirenix.OdinInspector;
 using UnityEngine;
-using Void = EditorAttributes.Void;
 
 namespace PROJECTNAME.Managers
 {
 public class UIManager : Singleton<UIManager>
 {
-	[SerializeField, PropertyOrder(-1),
-	FoldoutGroup("Prefabs", nameof(_CrosshairCanvasPrefab))]
-	private Void _PrefabFoldoutGroupHolder;
-
-	[Header("UI Manager Values"), SerializeField, ReadOnly]
-	private Canvas _CrosshairCanvas;
-	[SerializeField, HideProperty]
+	[SerializeField,
+	 TabGroup("", "Settings", SdfIconType.GearFill, TextColor = "yellow"),
+	 FoldoutGroup("/Settings/Prefabs")]
 	private GameObject _CrosshairCanvasPrefab;
+
 	private readonly List<UIInputReactiveBase> _ReactiveUIs = new();
+
+	[TabGroup("", "Info", SdfIconType.QuestionSquareFill,
+		 TextColor = "lightblue"), ShowInInspector, ReadOnly]
+	private Canvas _CrosshairCanvas;
 
 
 	protected override void Awake()
@@ -56,15 +56,15 @@ public class UIManager : Singleton<UIManager>
 	{
 		switch (deviceType)
 		{
-		case DeviceType.KeyboardMouse:
-			Debug.Log("Showing Keyboard & Mouse UI.");
-			break;
-		case DeviceType.Gamepad:
-			Debug.Log("Showing Gamepad UI.");
-			break;
-		case DeviceType.Unknown:
-			throw new ArgumentOutOfRangeException(nameof(deviceType),
-												deviceType, null);
+			case DeviceType.KeyboardMouse:
+				Debug.Log("Showing Keyboard & Mouse UI.");
+				break;
+			case DeviceType.Gamepad:
+				Debug.Log("Showing Gamepad UI.");
+				break;
+			case DeviceType.Unknown:
+				throw new ArgumentOutOfRangeException(nameof(deviceType),
+					deviceType, null);
 		}
 
 		foreach (UIInputReactiveBase uiInputReactiveBase in _ReactiveUIs)

@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using EditorAttributes;
 using PROJECTNAME.Utilities;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using Void = EditorAttributes.Void;
 
 namespace PROJECTNAME.Managers
 {
@@ -17,43 +16,35 @@ public class InputManager : PersistentSingleton<InputManager>
 	public event Action OnMovePressed;
 	public event Action<DeviceType> OnDeviceChanged;
 
-	public DeviceType CurrentDeviceType => _CurrentDeviceType;
+	[TabGroup("", "Info", SdfIconType.QuestionSquareFill,
+		 TextColor = "lightblue"), ShowInInspector, ReadOnly]
+	public DeviceType CurrentDeviceType { get; private set; } =
+		DeviceType.Unknown;
+
 	public Vector2 LookInput { get; private set; } = Vector2.zero;
 	public Vector2 MoveInput { get; private set; } = Vector2.zero;
 
-	[Header("Input Manager Values"), SerializeField, ReadOnly]
-	private DeviceType _CurrentDeviceType = DeviceType.Unknown;
-
-	[Header("Input References"), SerializeField, ReadOnly, HideProperty]
+	[SerializeField, TabGroup("", "Info"), ReadOnly]
 	private PlayerInput _PlayerInput;
-	[SerializeField, HideProperty]
+
+	[SerializeField,
+	 TabGroup("", "Settings", SdfIconType.GearFill, TextColor = "yellow"),
+	 FoldoutGroup("/Settings/Input References")]
 	private InputActionReference _MoveAction;
-	[SerializeField, HideProperty]
+	[SerializeField, FoldoutGroup("/Settings/Input References")]
 	private InputActionReference _LookAction;
-	[SerializeField, HideProperty]
+	[SerializeField, FoldoutGroup("/Settings/Input References")]
 	private InputActionReference _JumpAction;
-	[SerializeField, HideProperty]
+	[SerializeField, FoldoutGroup("/Settings/Input References")]
 	private InputActionReference _AttackAction;
-	[SerializeField, HideProperty]
+	[SerializeField, FoldoutGroup("/Settings/Input References")]
 	private InputActionReference _InteractionAction;
 
-	[Header("Action Maps"), SerializeField, HideProperty]
+	[SerializeField, FoldoutGroup("/Settings/Action Maps")]
 	private string _GameplayActionMap = "Gameplay";
-	[SerializeField, HideProperty]
+	[SerializeField, FoldoutGroup("/Settings/Action Maps")]
 	private string _UIActionMap = "UI";
 
-	// Decorative Holders.
-	[SerializeField, FoldoutGroup("Settings", true,
-								nameof(_PlayerInput),
-								nameof(_MoveAction),
-								nameof(_LookAction),
-								nameof(_JumpAction),
-								nameof(_AttackAction),
-								nameof(_InteractionAction),
-								nameof(_GameplayActionMap),
-								nameof(_UIActionMap)),
-	PropertyOrder(-1)]
-	private Void _SettingsGroupHolder;
 	private Action<InputAction.CallbackContext> _attackCallback;
 	private Action<InputAction.CallbackContext> _interactionCallback;
 	private Action<InputAction.CallbackContext> _jumpCallback;
@@ -113,7 +104,7 @@ public class InputManager : PersistentSingleton<InputManager>
 		}
 
 		if (_ActionMapDictionary.TryGetValue(actionMap,
-											out string actionMapName))
+			    out var actionMapName))
 			_PlayerInput.SwitchCurrentActionMap(actionMapName);
 		else
 			Debug.LogError($"No action map found for \"{actionMap}\"");
@@ -220,11 +211,11 @@ public class InputManager : PersistentSingleton<InputManager>
 			_ => DeviceType.Unknown
 		};
 
-		if (newDevice == _CurrentDeviceType)
+		if (newDevice == CurrentDeviceType)
 			return;
-		_CurrentDeviceType = newDevice;
-		Debug.Log($"Device Changed: <color=red>{_CurrentDeviceType}</color>");
-		OnDeviceChanged?.Invoke(_CurrentDeviceType);
+		CurrentDeviceType = newDevice;
+		Debug.Log($"Device Changed: <color=red>{CurrentDeviceType}</color>");
+		OnDeviceChanged?.Invoke(CurrentDeviceType);
 	}
 }
 
