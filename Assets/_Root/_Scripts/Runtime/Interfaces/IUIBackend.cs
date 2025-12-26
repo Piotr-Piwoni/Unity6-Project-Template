@@ -4,8 +4,7 @@ namespace PROJECTNAME.Interfaces
 {
 public interface IUIBackend
 {
-	void Init();
 	void Shutdown();
-	void OnDeviceChanged(DeviceType deviceType);
+	void HandleDeviceChange(DeviceType deviceType);
 }
 }
