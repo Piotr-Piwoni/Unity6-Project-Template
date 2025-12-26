@@ -1,6 +1,6 @@
-﻿using EditorAttributes;
-using PROJECTNAME.Systems;
+﻿using PROJECTNAME.Systems;
 using PROJECTNAME.Utilities;
+using Sirenix.OdinInspector;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,23 +9,21 @@ namespace PROJECTNAME.Managers
 {
 public class GameManager : PersistentSingleton<GameManager>
 {
-	public Camera Camera => _Camera;
-	public CinemachineCamera CinemachineCam => _CinemachineCam;
-	public GameObject Player => _Player;
-	public GameState CurrentState => _CurrentState;
+	[TabGroup("", "Info", SdfIconType.QuestionSquareFill,
+		 TextColor = "lightblue"), ShowInInspector, ReadOnly]
+	public Camera Camera { get; private set; }
+	[TabGroup("", "Info"), ShowInInspector, ReadOnly]
+	public CinemachineCamera CinemachineCam { get; private set; }
+	[TabGroup("", "Info"), ShowInInspector, ReadOnly]
+	public GameObject Player { get; private set; }
+	[TabGroup("", "Info"), ShowInInspector, ReadOnly,
+	 PropertyOrder(-1f)]
+	public GameState CurrentState { get; private set; } = GameState.Playing;
 
-	[SerializeField, ReadOnly]
-	private Camera _Camera;
-	[SerializeField, ReadOnly]
-	private CinemachineCamera _CinemachineCam;
-	[Header("Game Values"), SerializeField, ReadOnly, PropertyOrder(-1)]
-	private GameState _CurrentState = GameState.Playing;
-
-	[Header("Settings"), SerializeField, PropertyOrder(-12)]
+	[SerializeField,
+	 TabGroup("", "Settings", SdfIconType.GearFill, TextColor = "yellow")]
 	private GameObject _PlayerPrefab;
-	[SerializeField, ReadOnly]
-	private GameObject _Player;
-	[SerializeField, PropertyOrder(-12)]
+	[SerializeField, TabGroup("", "Settings")]
 	private AudioClip _MusicClip;
 
 	private GameState _PreviousState;
@@ -35,7 +33,7 @@ public class GameManager : PersistentSingleton<GameManager>
 	protected override void Awake()
 	{
 		base.Awake();
-		_PreviousState = _CurrentState;
+		_PreviousState = CurrentState;
 
 		HandlePlayerInit();
 		GetCamera();
@@ -54,30 +52,30 @@ public class GameManager : PersistentSingleton<GameManager>
 	private void Update()
 	{
 		// Handle game functionality differently based on current state.
-		switch (_CurrentState)
+		switch (CurrentState)
 		{
-		case GameState.MainMenu:
-			// Logic for when the game is in the Main Menu.
-			break;
-		case GameState.Playing:
-			// Logic for when the game is actually playing.
-			break;
-		case GameState.Talking:
-			// Logic for when talking occurs in the game.
-			break;
-		case GameState.Pause:
-			// Logic for when the game is paused.
-			break;
-		case GameState.Menu:
-			// Logic for when the game is in a UI menu.
-			break;
+			case GameState.MainMenu:
+				// Logic for when the game is in the Main Menu.
+				break;
+			case GameState.Playing:
+				// Logic for when the game is actually playing.
+				break;
+			case GameState.Talking:
+				// Logic for when talking occurs in the game.
+				break;
+			case GameState.Pause:
+				// Logic for when the game is paused.
+				break;
+			case GameState.Menu:
+				// Logic for when the game is in a UI menu.
+				break;
 		}
 	}
 
 	public void ChangeState(GameState newState)
 	{
-		_PreviousState = _CurrentState;
-		_CurrentState = newState;
+		_PreviousState = CurrentState;
+		CurrentState = newState;
 	}
 
 	public override void OnSceneChange(Scene scene, LoadSceneMode mode)
@@ -88,43 +86,43 @@ public class GameManager : PersistentSingleton<GameManager>
 	private void GetCamera()
 	{
 		// Locate the main camera.
-		Camera[] cameraObjs = FindObjectsByType<Camera>(
+		var cameraObjs = FindObjectsByType<Camera>(
 			FindObjectsInactive.Include,
 			FindObjectsSortMode.None);
 
 		foreach (Camera camObj in cameraObjs)
 			if (camObj.CompareTag("MainCamera"))
-				_Camera = camObj;
+				Camera = camObj;
 
-		if (!_Camera)
+		if (!Camera)
 		{
 			Debug.LogError("No Camera found in the scene!");
 			return;
 		}
 
 		// Try to get the CinemachineCamera component from the camera's parent.
-		_CinemachineCam = _Camera.GetComponentInParent<CinemachineCamera>(true);
-		if (!_CinemachineCam)
+		CinemachineCam = Camera.GetComponentInParent<CinemachineCamera>(true);
+		if (!CinemachineCam)
 		{
 			Debug.LogWarning("A Cinemachine Camera was not found in the " +
-							"scene or is not the parent object of the Camera.");
+			                 "scene or is not the parent object of the Camera.");
 		}
 
 		// If there's a player, move the cameras to the player, otherwise move
 		// them to the Game Manager.
-		if (_CinemachineCam)
+		if (CinemachineCam)
 		{
-			if (_CinemachineCam.transform.parent == _Player?.transform)
+			if (CinemachineCam.transform.parent == Player?.transform)
 				return;
-			_CinemachineCam.transform.SetParent(_Player
-													? _Player.transform
-													: transform);
+			CinemachineCam.transform.SetParent(Player
+				? Player.transform
+				: transform);
 			return;
 		}
 
-		if (!_Camera || _Camera.transform.parent == _Player?.transform)
+		if (!Camera || Camera.transform.parent == Player?.transform)
 			return;
-		_Camera.transform.SetParent(_Player ? _Player.transform : transform);
+		Camera.transform.SetParent(Player ? Player.transform : transform);
 	}
 
 
@@ -132,12 +130,12 @@ public class GameManager : PersistentSingleton<GameManager>
 	private void HandlePlayerInit()
 	{
 		// Get the player if it already exists, otherwise create one if possible.
-		_Player = GameObject.FindGameObjectWithTag("Player");
-		if (!_Player && _PlayerPrefab)
-			_Player = Instantiate(_PlayerPrefab);
+		Player = GameObject.FindGameObjectWithTag("Player");
+		if (!Player && _PlayerPrefab)
+			Player = Instantiate(_PlayerPrefab);
 
 		// Try to obtain the player spawner.
-		Spawner[] spawners = FindObjectsByType<Spawner>(
+		var spawners = FindObjectsByType<Spawner>(
 			FindObjectsSortMode.None);
 		foreach (Spawner spawner in spawners)
 		{
@@ -149,11 +147,11 @@ public class GameManager : PersistentSingleton<GameManager>
 
 		// If spawner found, spawn the player there.
 		if (_PlayerSpawner)
-			_PlayerSpawner.Spawn(_Player.transform, true);
+			_PlayerSpawner.Spawn(Player.transform, true);
 		else
 		{
 			Debug.Log("<color=yellow>Player spawner was not found " +
-					"in the scene.</color>");
+			          "in the scene.</color>");
 		}
 	}
 
