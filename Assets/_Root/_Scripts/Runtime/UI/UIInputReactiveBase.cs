@@ -2,7 +2,7 @@
 using UnityEngine;
 using DeviceType = PROJECTNAME.Managers.DeviceType;
 
-namespace PROJECTNAME.UI.UGUI
+namespace PROJECTNAME.UI
 {
 public abstract class UIInputReactiveBase : MonoBehaviour
 {

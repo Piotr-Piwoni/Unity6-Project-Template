@@ -1,4 +1,4 @@
-﻿using PROJECTNAME.UI.UGUI;
+﻿using PROJECTNAME.UI;
 
 namespace PROJECTNAME.Interfaces
 {

@@ -1,4 +1,5 @@
 using PROJECTNAME.Interfaces;
+using PROJECTNAME.UI;
 using PROJECTNAME.UI.UGUI;
 using PROJECTNAME.Utilities;
 using Sirenix.OdinInspector;
@@ -8,21 +9,21 @@ namespace PROJECTNAME.Managers
 {
 public class UIManager : Singleton<UIManager>
 {
+	public IUIBackend Backend { get; private set; }
+
 	[TabGroup("", "Info", SdfIconType.QuestionSquareFill, TextColor = "lightblue"),
 	 ShowInInspector, ReadOnly, HideLabel,]
-	private UGuiUIBackendState BackendState => (_Backend as UGuiUIBackend)?.State;
+	private UGuiUIBackendState BackendState => (Backend as UGuiUIBackend)?.State;
 
 	[SerializeField, TabGroup("", "Settings", SdfIconType.GearFill, TextColor = "yellow"),
 	 FoldoutGroup("/Settings/Prefabs"),]
 	private GameObject _CrosshairCanvasPrefab;
 
-	private IUIBackend _Backend;
-
 
 	protected override void Awake()
 	{
 		base.Awake();
-		_Backend = new UGuiUIBackend(transform, _CrosshairCanvasPrefab);
+		Backend = new UGuiUIBackend(transform, _CrosshairCanvasPrefab);
 	}
 
 	private void OnEnable()
@@ -36,24 +37,24 @@ public class UIManager : Singleton<UIManager>
 			return;
 
 		InputManager.Instance.OnDeviceChanged -= OnDeviceChanged;
-		_Backend?.Shutdown();
+		Backend?.Shutdown();
 	}
 
 	public void RegisterReactiveUI(UIInputReactiveBase reactiveUI)
 	{
-		if (_Backend is IUIReactiveRegistry registry)
+		if (Backend is IUIReactiveRegistry registry)
 			registry.RegisterReactiveUI(reactiveUI);
 	}
 
 	public void UnregisterReactiveUI(UIInputReactiveBase reactiveUI)
 	{
-		if (_Backend is IUIReactiveRegistry registry)
+		if (Backend is IUIReactiveRegistry registry)
 			registry.UnregisterReactiveUI(reactiveUI);
 	}
 
 	private void OnDeviceChanged(DeviceType deviceType)
 	{
-		_Backend.HandleDeviceChange(deviceType);
+		Backend.HandleDeviceChange(deviceType);
 	}
 }
 }
