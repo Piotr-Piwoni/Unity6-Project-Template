@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DeviceType = PROJECTNAME.Managers.DeviceType;
 
-namespace PROJECTNAME.UI
+namespace PROJECTNAME.UI.UGUI
 {
 public class IconSwap : UIInputReactiveBase
 {
@@ -43,8 +43,7 @@ public class IconSwap : UIInputReactiveBase
 			_Image.sprite = _GamepadIcon;
 			break;
 		case DeviceType.Unknown:
-			throw new ArgumentOutOfRangeException(nameof(deviceType),
-												deviceType, null);
+			throw new ArgumentOutOfRangeException(nameof(deviceType), deviceType, null);
 		}
 	}
 }

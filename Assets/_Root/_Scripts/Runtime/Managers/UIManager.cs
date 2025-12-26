@@ -1,6 +1,5 @@
-using System;
-using System.Collections.Generic;
-using PROJECTNAME.UI;
+using PROJECTNAME.Interfaces;
+using PROJECTNAME.UI.UGUI;
 using PROJECTNAME.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -9,28 +8,21 @@ namespace PROJECTNAME.Managers
 {
 public class UIManager : Singleton<UIManager>
 {
-	[SerializeField,
-	 TabGroup("", "Settings", SdfIconType.GearFill, TextColor = "yellow"),
-	 FoldoutGroup("/Settings/Prefabs")]
+	[SerializeField, TabGroup("", "Settings", SdfIconType.GearFill, TextColor = "yellow"),
+	 FoldoutGroup("/Settings/Prefabs"),]
 	private GameObject _CrosshairCanvasPrefab;
 
-	private readonly List<UIInputReactiveBase> _ReactiveUIs = new();
-
-	[TabGroup("", "Info", SdfIconType.QuestionSquareFill,
-		 TextColor = "lightblue"), ShowInInspector, ReadOnly]
+	[TabGroup("", "Info", SdfIconType.QuestionSquareFill, TextColor = "lightblue"),
+	 ShowInInspector, ReadOnly,]
 	private Canvas _CrosshairCanvas;
+
+	private IUIBackend _Backend;
 
 
 	protected override void Awake()
 	{
 		base.Awake();
-
-		// If the player exists and the prefab to the crosshair canvas was provide, spawn it.
-		if (GameManager.Instance.Player && _CrosshairCanvasPrefab)
-		{
-			_CrosshairCanvas = Instantiate(_CrosshairCanvasPrefab, transform)
-				.GetComponent<Canvas>();
-		}
+		_Backend = new UGuiUIBackend(transform, _CrosshairCanvasPrefab);
 	}
 
 	private void OnEnable()
@@ -44,31 +36,18 @@ public class UIManager : Singleton<UIManager>
 			return;
 
 		InputManager.Instance.OnDeviceChanged -= OnDeviceChanged;
+		_Backend?.Shutdown();
 	}
 
-	public void AddReactiveUI(UIInputReactiveBase uiInputReactiveBase)
+	public void RegisterReactiveUI(UIInputReactiveBase reactiveUI)
 	{
-		if (!_ReactiveUIs.Contains(uiInputReactiveBase))
-			_ReactiveUIs.Add(uiInputReactiveBase);
+		if (_Backend is IUIReactiveRegistry registry)
+			registry.RegisterReactiveUI(reactiveUI);
 	}
 
 	private void OnDeviceChanged(DeviceType deviceType)
 	{
-		switch (deviceType)
-		{
-			case DeviceType.KeyboardMouse:
-				Debug.Log("Showing Keyboard & Mouse UI.");
-				break;
-			case DeviceType.Gamepad:
-				Debug.Log("Showing Gamepad UI.");
-				break;
-			case DeviceType.Unknown:
-				throw new ArgumentOutOfRangeException(nameof(deviceType),
-					deviceType, null);
-		}
-
-		foreach (UIInputReactiveBase uiInputReactiveBase in _ReactiveUIs)
-			uiInputReactiveBase.HandleDeviceChange(deviceType);
+		_Backend.HandleDeviceChange(deviceType);
 	}
 }
 }
