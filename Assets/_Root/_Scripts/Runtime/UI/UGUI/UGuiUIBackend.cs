@@ -54,5 +54,10 @@ public class UGuiUIBackend : IUIBackend, IUIReactiveRegistry
 		if (!_ReactiveUIs.Contains(reactiveUI))
 			_ReactiveUIs.Add(reactiveUI);
 	}
+
+	public void UnregisterReactiveUI(UIInputReactiveBase reactiveUI)
+	{
+		_ReactiveUIs.Remove(reactiveUI);
+	}
 }
 }

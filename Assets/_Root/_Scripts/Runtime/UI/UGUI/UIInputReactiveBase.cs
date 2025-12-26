@@ -12,6 +12,12 @@ public abstract class UIInputReactiveBase : MonoBehaviour
 			UIManager.Instance.RegisterReactiveUI(this);
 	}
 
+	protected virtual void OnDestroy()
+	{
+		if (UIManager.Instance)
+			UIManager.Instance.UnregisterReactiveUI(this);
+	}
+
 	public abstract void HandleDeviceChange(DeviceType deviceType);
 }
 }

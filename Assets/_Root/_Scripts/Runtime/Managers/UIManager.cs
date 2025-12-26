@@ -45,6 +45,12 @@ public class UIManager : Singleton<UIManager>
 			registry.RegisterReactiveUI(reactiveUI);
 	}
 
+	public void UnregisterReactiveUI(UIInputReactiveBase reactiveUI)
+	{
+		if (_Backend is IUIReactiveRegistry registry)
+			registry.UnregisterReactiveUI(reactiveUI);
+	}
+
 	private void OnDeviceChanged(DeviceType deviceType)
 	{
 		_Backend.HandleDeviceChange(deviceType);
