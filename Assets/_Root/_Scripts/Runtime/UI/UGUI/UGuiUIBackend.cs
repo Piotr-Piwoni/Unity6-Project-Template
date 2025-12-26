@@ -10,9 +10,12 @@ namespace PROJECTNAME.UI.UGUI
 {
 public class UGuiUIBackend : IUIBackend, IUIReactiveRegistry
 {
+	public UGuiUIBackendState State { get; private set; }
+
 	private readonly Canvas _CrosshairCanvas;
 	private readonly List<UIInputReactiveBase> _ReactiveUIs = new();
 	private readonly Transform _Root;
+
 
 	public UGuiUIBackend(Transform root, GameObject crosshairCanvasPrefab)
 	{
@@ -21,6 +24,8 @@ public class UGuiUIBackend : IUIBackend, IUIReactiveRegistry
 		// If the player exists and the prefab to the crosshair canvas was provide, spawn it.
 		if (GameManager.Instance.Player && crosshairCanvasPrefab)
 			_CrosshairCanvas = Object.Instantiate(crosshairCanvasPrefab, _Root).GetComponent<Canvas>();
+
+		UpdateState();
 	}
 
 	public void Shutdown()
@@ -29,6 +34,7 @@ public class UGuiUIBackend : IUIBackend, IUIReactiveRegistry
 			Object.Destroy(_CrosshairCanvas.gameObject);
 
 		_ReactiveUIs.Clear();
+		UpdateState();
 	}
 
 	public void HandleDeviceChange(DeviceType deviceType)
@@ -51,13 +57,22 @@ public class UGuiUIBackend : IUIBackend, IUIReactiveRegistry
 
 	public void RegisterReactiveUI(UIInputReactiveBase reactiveUI)
 	{
-		if (!_ReactiveUIs.Contains(reactiveUI))
-			_ReactiveUIs.Add(reactiveUI);
+		if (_ReactiveUIs.Contains(reactiveUI))
+			return;
+		_ReactiveUIs.Add(reactiveUI);
+		UpdateState();
 	}
 
 	public void UnregisterReactiveUI(UIInputReactiveBase reactiveUI)
 	{
-		_ReactiveUIs.Remove(reactiveUI);
+		if (_ReactiveUIs.Remove(reactiveUI))
+			UpdateState();
+	}
+
+	/// Cache the backend state.
+	private void UpdateState()
+	{
+		State = new UGuiUIBackendState(_CrosshairCanvas, _ReactiveUIs.Count);
 	}
 }
 }

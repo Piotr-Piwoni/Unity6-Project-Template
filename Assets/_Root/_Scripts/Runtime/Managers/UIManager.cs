@@ -8,13 +8,13 @@ namespace PROJECTNAME.Managers
 {
 public class UIManager : Singleton<UIManager>
 {
+	[TabGroup("", "Info", SdfIconType.QuestionSquareFill, TextColor = "lightblue"),
+	 ShowInInspector, ReadOnly, HideLabel,]
+	private UGuiUIBackendState BackendState => (_Backend as UGuiUIBackend)?.State;
+
 	[SerializeField, TabGroup("", "Settings", SdfIconType.GearFill, TextColor = "yellow"),
 	 FoldoutGroup("/Settings/Prefabs"),]
 	private GameObject _CrosshairCanvasPrefab;
-
-	[TabGroup("", "Info", SdfIconType.QuestionSquareFill, TextColor = "lightblue"),
-	 ShowInInspector, ReadOnly,]
-	private Canvas _CrosshairCanvas;
 
 	private IUIBackend _Backend;
 
