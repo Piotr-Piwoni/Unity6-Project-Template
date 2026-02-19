@@ -78,6 +78,23 @@ public class InputManager : PersistentSingleton<InputManager>
 	public override void OnSceneChange(Scene scene, LoadSceneMode mode) { }
 
 
+	public void SetPlayerInput(PlayerInput input)
+	{
+		if (!input)
+		{
+			Debug.LogWarning("The provied PlayerInput was NULL!");
+			return;
+		}
+
+		// Unbind events if there was an existing PlayerInput.
+		if (_PlayerInput)
+			_PlayerInput.onControlsChanged -= OnControlsChanged;
+
+		_PlayerInput = input;
+		_PlayerInput.onControlsChanged += OnControlsChanged;
+		UpdateCurrentDeviceType(_PlayerInput.currentControlScheme);
+	}
+
 	/// <summary>
 	///     Switch the currently in-use action map to a new one.
 	/// </summary>

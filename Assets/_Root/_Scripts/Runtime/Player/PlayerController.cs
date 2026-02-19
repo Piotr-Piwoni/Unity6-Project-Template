@@ -2,6 +2,7 @@ using System;
 using PROJECTNAME.Managers;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using DeviceType = PROJECTNAME.Utilities.Types.DeviceType;
 
 namespace PROJECTNAME
@@ -27,6 +28,11 @@ public class PlayerController : MonoBehaviour
 			_CameraTransform = _Camera.transform;
 		else
 			Debug.LogError("No Cinemachine Camera found as a child!");
+	}
+
+	private void Start()
+	{
+		InputManager.Instance.SetPlayerInput(GetComponent<PlayerInput>());
 	}
 
 	private void Update()
