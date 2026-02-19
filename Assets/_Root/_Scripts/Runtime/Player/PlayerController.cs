@@ -2,7 +2,7 @@ using System;
 using PROJECTNAME.Managers;
 using Unity.Cinemachine;
 using UnityEngine;
-using DeviceType = PROJECTNAME.Managers.DeviceType;
+using DeviceType = PROJECTNAME.Utilities.Types.DeviceType;
 
 namespace PROJECTNAME
 {

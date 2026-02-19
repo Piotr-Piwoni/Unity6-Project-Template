@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
-using DeviceType = PROJECTNAME.Managers.DeviceType;
+using DeviceType = PROJECTNAME.Utilities.Types.DeviceType;
 
 namespace PROJECTNAME.UI
 {
@@ -19,6 +19,7 @@ public class IconSwap : UIInputReactiveBase
 	{
 		_Image = GetComponent<Image>();
 	}
+
 
 	public override void HandleDeviceChange(DeviceType deviceType)
 	{
@@ -44,7 +45,7 @@ public class IconSwap : UIInputReactiveBase
 			break;
 		case DeviceType.Unknown:
 			throw new ArgumentOutOfRangeException(nameof(deviceType),
-												deviceType, null);
+												  deviceType, null);
 		}
 	}
 }

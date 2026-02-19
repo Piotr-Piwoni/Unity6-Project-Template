@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using PROJECTNAME.Utilities;
+using PROJECTNAME.Utilities.Types;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using DeviceType = PROJECTNAME.Utilities.Types.DeviceType;
 
 namespace PROJECTNAME.Managers
 {
@@ -17,32 +19,32 @@ public class InputManager : PersistentSingleton<InputManager>
 	public event Action<DeviceType> OnDeviceChanged;
 
 	[TabGroup("", "Info", SdfIconType.QuestionSquareFill,
-		 TextColor = "lightblue"), ShowInInspector, ReadOnly]
+			  TextColor = "lightblue"), ShowInInspector, ReadOnly,]
 	public DeviceType CurrentDeviceType { get; private set; } =
 		DeviceType.Unknown;
 
 	public Vector2 LookInput { get; private set; } = Vector2.zero;
 	public Vector2 MoveInput { get; private set; } = Vector2.zero;
 
-	[SerializeField, TabGroup("", "Info"), ReadOnly]
+	[SerializeField, TabGroup("", "Info"), ReadOnly,]
 	private PlayerInput _PlayerInput;
 
 	[SerializeField,
 	 TabGroup("", "Settings", SdfIconType.GearFill, TextColor = "yellow"),
-	 FoldoutGroup("/Settings/Input References")]
+	 FoldoutGroup("/Settings/Input References"),]
 	private InputActionReference _MoveAction;
-	[SerializeField, FoldoutGroup("/Settings/Input References")]
+	[SerializeField, FoldoutGroup("/Settings/Input References"),]
 	private InputActionReference _LookAction;
-	[SerializeField, FoldoutGroup("/Settings/Input References")]
+	[SerializeField, FoldoutGroup("/Settings/Input References"),]
 	private InputActionReference _JumpAction;
-	[SerializeField, FoldoutGroup("/Settings/Input References")]
+	[SerializeField, FoldoutGroup("/Settings/Input References"),]
 	private InputActionReference _AttackAction;
-	[SerializeField, FoldoutGroup("/Settings/Input References")]
+	[SerializeField, FoldoutGroup("/Settings/Input References"),]
 	private InputActionReference _InteractionAction;
 
-	[SerializeField, FoldoutGroup("/Settings/Action Maps")]
+	[SerializeField, FoldoutGroup("/Settings/Action Maps"),]
 	private string _GameplayActionMap = "Gameplay";
-	[SerializeField, FoldoutGroup("/Settings/Action Maps")]
+	[SerializeField, FoldoutGroup("/Settings/Action Maps"),]
 	private string _UIActionMap = "UI";
 
 	private Action<InputAction.CallbackContext> _attackCallback;
@@ -87,9 +89,8 @@ public class InputManager : PersistentSingleton<InputManager>
 		_PlayerInput.onControlsChanged -= OnControlsChanged;
 	}
 
-	public override void OnSceneChange(Scene scene, LoadSceneMode mode)
-	{
-	}
+	public override void OnSceneChange(Scene scene, LoadSceneMode mode) { }
+
 
 	/// <summary>
 	///     Switch the currently in-use action map to a new one.
@@ -104,7 +105,7 @@ public class InputManager : PersistentSingleton<InputManager>
 		}
 
 		if (_ActionMapDictionary.TryGetValue(actionMap,
-			    out var actionMapName))
+											 out string actionMapName))
 			_PlayerInput.SwitchCurrentActionMap(actionMapName);
 		else
 			Debug.LogError($"No action map found for \"{actionMap}\"");
@@ -152,8 +153,8 @@ public class InputManager : PersistentSingleton<InputManager>
 	{
 		_ActionMapDictionary = new Dictionary<ActionMap, string>
 		{
-			{ ActionMap.Gameplay, _GameplayActionMap },
-			{ ActionMap.UI, _UIActionMap }
+				{ ActionMap.Gameplay, _GameplayActionMap },
+				{ ActionMap.UI, _UIActionMap },
 		};
 	}
 
@@ -206,9 +207,9 @@ public class InputManager : PersistentSingleton<InputManager>
 	{
 		DeviceType newDevice = controlScheme switch
 		{
-			"Keyboard&Mouse" => DeviceType.KeyboardMouse,
-			"Gamepad" => DeviceType.Gamepad,
-			_ => DeviceType.Unknown
+				"Keyboard&Mouse" => DeviceType.KeyboardMouse,
+				"Gamepad" => DeviceType.Gamepad,
+				_ => DeviceType.Unknown,
 		};
 
 		if (newDevice == CurrentDeviceType)
@@ -217,18 +218,5 @@ public class InputManager : PersistentSingleton<InputManager>
 		Debug.Log($"Device Changed: <color=red>{CurrentDeviceType}</color>");
 		OnDeviceChanged?.Invoke(CurrentDeviceType);
 	}
-}
-
-public enum ActionMap
-{
-	Gameplay = 0,
-	UI = 1
-}
-
-public enum DeviceType
-{
-	Unknown = -1,
-	KeyboardMouse = 0,
-	Gamepad = 1
 }
 }

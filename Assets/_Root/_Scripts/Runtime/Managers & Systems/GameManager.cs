@@ -72,6 +72,7 @@ public class GameManager : PersistentSingleton<GameManager>
 		}
 	}
 
+
 	public void ChangeState(GameState newState)
 	{
 		_PreviousState = CurrentState;

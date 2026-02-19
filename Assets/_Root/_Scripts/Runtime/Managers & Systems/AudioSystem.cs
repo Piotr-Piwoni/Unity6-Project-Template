@@ -7,24 +7,26 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.Pool;
 using Debug = UnityEngine.Debug;
+using AudioType = PROJECTNAME.Utilities.Types.AudioType;
 
 namespace PROJECTNAME.Systems
 {
 [RequireComponent(typeof(AudioSource))]
 public class AudioSystem : Singleton<AudioSystem>
 {
-	[SerializeField, TabGroup("", "Debug")]
+	[SerializeField, TabGroup("", "Debug"),]
 	private bool _Log;
 	[SerializeField,
 	 TabGroup("", "Settings", SdfIconType.GearFill, TextColor = "yellow"),
-	 MinValue(1)]
+	 MinValue(1),]
 	private int _MaxAudioSources = 50;
 
 	private readonly Dictionary<AudioSource, Coroutine> _AudioSourceCoroutines =
-		new();
+			new();
 	private AudioMixer _Mixer;
 	private AudioSource _MusicSrc;
 	private ObjectPool<AudioSource> _AudioSourcePool;
+
 
 	protected override void Awake()
 	{
@@ -41,8 +43,11 @@ public class AudioSystem : Singleton<AudioSystem>
 
 		// Initialize the pool.
 		_AudioSourcePool = new ObjectPool<AudioSource>(CreateAudioSource,
-			OnGetAudioSource, OnReleaseAudioSource, OnDestroyAudioSource,
-			defaultCapacity: 10, maxSize: _MaxAudioSources);
+													   OnGetAudioSource,
+													   OnReleaseAudioSource,
+													   OnDestroyAudioSource,
+													   defaultCapacity: 10,
+													   maxSize: _MaxAudioSources);
 	}
 
 	private void Update()
@@ -50,6 +55,7 @@ public class AudioSystem : Singleton<AudioSystem>
 		// Only if logging is enabled.
 		LogSources();
 	}
+
 
 	/// <summary>
 	///     Plays the provided audio clip.
@@ -60,9 +66,11 @@ public class AudioSystem : Singleton<AudioSystem>
 	/// <param name="volume">The clip's volume.</param>
 	/// <param name="loop">If the clip should be looping.</param>
 	/// <returns>The audio source used.</returns>
-	public AudioSource PlayClip(AudioClip clip, Vector3? position = null,
-		AudioType type = AudioType.Sfx,
-		float volume = 1f, bool loop = false)
+	public AudioSource PlayClip(AudioClip clip,
+			Vector3? position = null,
+			AudioType type = AudioType.Sfx,
+			float volume = 1f,
+			bool loop = false)
 	{
 		// Retrieve an AudioSource from the pool.
 		AudioSource audioSrc = _AudioSourcePool.Get();
@@ -84,15 +92,15 @@ public class AudioSystem : Singleton<AudioSystem>
 		// Based on the AudioType, find the corresponding mixer group.
 		switch (type)
 		{
-			case AudioType.Music:
-				FindMixerGroup(audioSrc, "Music");
-				break;
-			case AudioType.Sfx:
-				FindMixerGroup(audioSrc, "SFX");
-				break;
-			case AudioType.Dialogue:
-				FindMixerGroup(audioSrc, "Dialogue");
-				break;
+		case AudioType.Music:
+			FindMixerGroup(audioSrc, "Music");
+			break;
+		case AudioType.Sfx:
+			FindMixerGroup(audioSrc, "SFX");
+			break;
+		case AudioType.Dialogue:
+			FindMixerGroup(audioSrc, "Dialogue");
+			break;
 		}
 
 		audioSrc.clip = clip;
@@ -147,7 +155,7 @@ public class AudioSystem : Singleton<AudioSystem>
 
 		// If it's in the dictionary, and it has a coroutine, stop it.
 		if (!_AudioSourceCoroutines.TryGetValue(audioSrc,
-			    out Coroutine coroutine))
+												out Coroutine coroutine))
 			return;
 
 		// Clean up.
@@ -186,17 +194,17 @@ public class AudioSystem : Singleton<AudioSystem>
 	/// <param name="groupName">The name of the mixer group to find.</param>
 	private void FindMixerGroup(AudioSource audioSrs, string groupName)
 	{
-		var mixerGroups = _Mixer.FindMatchingGroups(groupName);
+		AudioMixerGroup[] mixerGroups = _Mixer.FindMatchingGroups(groupName);
 		if (mixerGroups.Length > 0)
 			audioSrs.outputAudioMixerGroup = mixerGroups[0];
 		else
 		{
 			Debug.LogError($"The group: \"{groupName}\", was not found in " +
-			               "Audio Mixer! Defaulting to \"Master\".");
+						   "Audio Mixer! Defaulting to \"Master\".");
 
 			// Fallback to Master.
 			audioSrs.outputAudioMixerGroup =
-				_Mixer.FindMatchingGroups("Master")[0];
+					_Mixer.FindMatchingGroups("Master")[0];
 		}
 	}
 
@@ -208,28 +216,26 @@ public class AudioSystem : Singleton<AudioSystem>
 			return;
 
 		Debug.Log(
-			$"<color=Red>------------- {name}<AudioSystem> Log Start -------------</color>");
+				$"<color=Red>------------- {name}<AudioSystem> Log Start -------------</color>");
 		foreach ((AudioSource key, Coroutine value) in _AudioSourceCoroutines)
 		{
 			if (!key)
 				continue;
 
 			// If there's an active coroutine, get its hash code, otherwise output NULL.
-			var logValue = value != null
-				? value.GetHashCode().ToString()
-				: "Null";
+			string logValue = value != null ? value.GetHashCode().ToString() : "Null";
 
 			// If the source is looping, specify that it is.
 			if (key.loop)
 				logValue += ", is Looping";
 
 			Debug.Log($"{key.name}: " +
-			          $"<color=yellow>{key.GetInstanceID()}</color>\t" +
-			          $"Coroutine: <color=green>{logValue}</color>");
+					  $"<color=yellow>{key.GetInstanceID()}</color>\t" +
+					  $"Coroutine: <color=green>{logValue}</color>");
 		}
 
 		Debug.Log(
-			$"<color=Red>------------- {name}<AudioSystem> End -------------</color>");
+				$"<color=Red>------------- {name}<AudioSystem> End -------------</color>");
 	}
 
 	/// Called when an AudioSource is destroyed.
@@ -259,7 +265,7 @@ public class AudioSystem : Singleton<AudioSystem>
 
 	/// Release the AudioSource back to the pool after it finishes playing.
 	private IEnumerator ReturnAudioSourceToPool(AudioSource audioSource,
-		float clipLength)
+			float clipLength)
 	{
 		yield return new WaitForSeconds(clipLength);
 		_AudioSourcePool.Release(audioSource);
@@ -277,24 +283,23 @@ public class AudioSystem : Singleton<AudioSystem>
 		// Ensure no coroutine is running for the same source.
 		Coroutine coroutine = null;
 		if (!_AudioSourceCoroutines.ContainsKey(src) ||
-		    _AudioSourceCoroutines[src] == null)
-		{
+			_AudioSourceCoroutines[src] == null)
 			coroutine = StartCoroutine(ReturnAudioSourceToPool(src,
-				src.clip.length));
-		}
+										   src.clip.length));
 
 		return coroutine;
 	}
 
-#if UNITY_EDITOR
+
+	#if UNITY_EDITOR
 
 	[SerializeField,
 	 TabGroup("", "Debug", SdfIconType.BugFill, TextColor = "red"),
-	 EnableIf(nameof(_Log))]
+	 EnableIf(nameof(_Log)),]
 	private AudioClip _TestingClip;
-	[SerializeField, TabGroup("", "Debug"), EnableIf(nameof(_Log))]
+	[SerializeField, TabGroup("", "Debug"), EnableIf(nameof(_Log)),]
 	private bool _LoopClip;
-	[SerializeField, TabGroup("", "Debug"), EnableIf(nameof(_Log)), ReadOnly]
+	[SerializeField, TabGroup("", "Debug"), EnableIf(nameof(_Log)), ReadOnly,]
 	private AudioSource _TestingSource;
 
 
@@ -318,13 +323,6 @@ public class AudioSystem : Singleton<AudioSystem>
 
 		_TestingSource = PlayClip(_TestingClip, loop: _LoopClip);
 	}
-#endif
-}
-
-public enum AudioType
-{
-	Music = 0,
-	Sfx = 1,
-	Dialogue = 2
+	#endif
 }
 }
