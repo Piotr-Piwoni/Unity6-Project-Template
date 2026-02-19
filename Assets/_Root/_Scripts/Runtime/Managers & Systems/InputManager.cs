@@ -17,6 +17,7 @@ namespace PROJECTNAME.Managers
 ///     This class is intentionally decoupled from gameplay logic and only exposes
 ///     input state and events. Consumers decide how to interpret the input.
 /// </remarks>
+[HideMonoScript]
 public class InputManager : PersistentSingleton<InputManager>
 {
 	public event Action OnAttackPressed;

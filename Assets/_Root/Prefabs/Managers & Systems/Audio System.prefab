@@ -142,8 +142,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5da0761b5a4e4fb2ba352d2a86942dba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _Log: 0
   _MaxAudioSources: 50
+  _Log: 0
+  _DebugMode: 0
   _TestingClip: {fileID: 0}
   _LoopClip: 0
   _TestingSource: {fileID: 0}

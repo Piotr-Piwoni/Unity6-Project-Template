@@ -1,12 +1,10 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using PROJECTNAME.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.Pool;
-using Debug = UnityEngine.Debug;
 using AudioType = PROJECTNAME.Utilities.Types.AudioType;
 
 namespace PROJECTNAME.Systems
@@ -54,8 +52,9 @@ public class AudioSystem : Singleton<AudioSystem>
 
 	private void Update()
 	{
-		// Only if logging is enabled.
+		# if UNITY_EDITOR
 		LogSources();
+		#endif
 	}
 
 
@@ -149,8 +148,7 @@ public class AudioSystem : Singleton<AudioSystem>
 	/// <param name="audioSrc">The audio source that you wish to stop playing.</param>
 	public void StopClip(AudioSource audioSrc)
 	{
-		if (!audioSrc)
-			return;
+		if (!audioSrc) return;
 
 		// Stop the audio source and update the dictionary.
 		audioSrc.Stop();
@@ -214,35 +212,6 @@ public class AudioSystem : Singleton<AudioSystem>
 	/// <summary>
 	///     Cleans up an AudioSource when it is destroyed by the pool.
 	/// </summary>
-	[Conditional("UNITY_EDITOR")]
-	private void LogSources()
-	{
-		if (!_Log || _AudioSourceCoroutines.Count <= 0)
-			return;
-
-		Debug.Log(
-				$"<color=Red>------------- {name}<AudioSystem> Log Start -------------</color>");
-		foreach ((AudioSource key, Coroutine value) in _AudioSourceCoroutines)
-		{
-			if (!key)
-				continue;
-
-			// If there's an active coroutine, get its hash code, otherwise output NULL.
-			string logValue = value != null ? value.GetHashCode().ToString() : "Null";
-
-			// If the source is looping, specify that it is.
-			if (key.loop)
-				logValue += ", is Looping";
-
-			Debug.Log($"{key.name}: " +
-					  $"<color=yellow>{key.GetInstanceID()}</color>\t" +
-					  $"Coroutine: <color=green>{logValue}</color>");
-		}
-
-		Debug.Log(
-				$"<color=Red>------------- {name}<AudioSystem> End -------------</color>");
-	}
-
 	private void OnDestroyAudioSource(AudioSource audioSource)
 	{
 		// Stop its corresponding coroutine and clean up.
@@ -299,14 +268,15 @@ public class AudioSystem : Singleton<AudioSystem>
 
 
 	#if UNITY_EDITOR
-
-	[SerializeField,
-	 TabGroup("", "Debug", SdfIconType.BugFill, TextColor = "red"),
-	 EnableIf(nameof(_Log)),]
+	[SerializeField]
+	private bool _Log;
+	[SerializeField]
+	private bool _DebugMode;
+	[SerializeField]
 	private AudioClip _TestingClip;
-	[SerializeField, TabGroup("", "Debug"), EnableIf(nameof(_Log)),]
+	[SerializeField]
 	private bool _LoopClip;
-	[SerializeField, TabGroup("", "Debug"), EnableIf(nameof(_Log)), ReadOnly,]
+	[SerializeField, ReadOnly,]
 	private AudioSource _TestingSource;
 
 
@@ -329,6 +299,36 @@ public class AudioSystem : Singleton<AudioSystem>
 		}
 
 		_TestingSource = PlayClip(_TestingClip, loop: _LoopClip);
+	}
+
+	/// <summary>
+	///     Outputs debug information about active AudioSources.
+	/// </summary>
+	private void LogSources()
+	{
+		if (!_Log || _AudioSourceCoroutines.Count <= 0)
+			return;
+
+		Debug.Log(
+				$"<color=Red>------------- {name}<AudioSystem> Log Start -------------</color>");
+		foreach ((AudioSource key, Coroutine value) in _AudioSourceCoroutines)
+		{
+			if (!key) continue;
+
+			// If there's an active coroutine, get its hash code, otherwise output NULL.
+			string logValue = value != null ? value.GetHashCode().ToString() : "Null";
+
+			// If the source is looping, specify that it is.
+			if (key.loop)
+				logValue += ", is Looping";
+
+			Debug.Log($"{key.name}: " +
+					  $"<color=yellow>{key.GetInstanceID()}</color>\t" +
+					  $"Coroutine: <color=green>{logValue}</color>");
+		}
+
+		Debug.Log(
+				$"<color=Red>------------- {name}<AudioSystem> End -------------</color>");
 	}
 	#endif
 }
