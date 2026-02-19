@@ -10,6 +10,13 @@ using DeviceType = PROJECTNAME.Utilities.Types.DeviceType;
 
 namespace PROJECTNAME.Managers
 {
+/// <summary>
+///     Centralized manager responsible for handling all player input.
+/// </summary>
+/// <remarks>
+///     This class is intentionally decoupled from gameplay logic and only exposes
+///     input state and events. Consumers decide how to interpret the input.
+/// </remarks>
 public class InputManager : PersistentSingleton<InputManager>
 {
 	public event Action OnAttackPressed;
@@ -77,7 +84,10 @@ public class InputManager : PersistentSingleton<InputManager>
 
 	public override void OnSceneChange(Scene scene, LoadSceneMode mode) { }
 
-
+	/// <summary>
+	///     Assigns the PlayerInput instance used by the InputManager.
+	/// </summary>
+	/// <param name="input">The PlayerInput instance to bind.</param>
 	public void SetPlayerInput(PlayerInput input)
 	{
 		if (!input)
@@ -151,8 +161,9 @@ public class InputManager : PersistentSingleton<InputManager>
 		_SprintAction.action.Enable();
 	}
 
-	/// Initialize a dictionary that links the ActionMap enum with their
-	/// string counterpart.
+	/// <summary>
+	///     Initializes the action map lookup dictionary.
+	/// </summary>
 	private void InitializeActionMaps()
 	{
 		_ActionMapDictionary = new Dictionary<ActionMap, string>
@@ -162,7 +173,10 @@ public class InputManager : PersistentSingleton<InputManager>
 		};
 	}
 
-	/// Handles changing the control scheme.
+	/// <summary>
+	///     Handles control scheme changes from the PlayerInput component.
+	/// </summary>
+	/// <param name="input">The PlayerInput instance reporting the change.</param>
 	private void OnControlsChanged(PlayerInput input)
 	{
 		if (input.currentControlScheme == null) return;
@@ -216,8 +230,10 @@ public class InputManager : PersistentSingleton<InputManager>
 		DisableAllActions();
 	}
 
-	/// Internal function used to convert the "PlayerInput.currentControlScheme"
-	/// from string to DeviceType.
+	/// <summary>
+	///     Converts a control scheme name into a DeviceType and applies it if changed.
+	/// </summary>
+	/// <param name="controlScheme">The control scheme string from PlayerInput.</param>
 	private void UpdateCurrentDeviceType(string controlScheme)
 	{
 		DeviceType newDevice = controlScheme switch
