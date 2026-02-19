@@ -1,0 +1,31 @@
+OVDF v1.1
+PROJECTNAME.Managers.UIManager, Project
+MetaGuid:e2ac2c0c4feccf248a2ad90adc1672b1
+
+# $WKAX43VTchUntgBaMEAe7w
+Position: $root
++ [Sirenix.OdinInspector.TabGroupAttribute]
+	GroupName = "UIManger"
+
+# $N3nPD5Zg92orD8tw7jTiBc
+Position: $WKAX43VTchUntgBaMEAe7w:0
++ [Sirenix.OdinInspector.TabGroupAttribute+TabSubGroupAttribute]
+	GroupName = "Settings"
+	Icon = GearFill
+	TextColor = "yellow"
+
+# $KDZ4N67vLUHkJbv8ZRqjRW
+Position: $WKAX43VTchUntgBaMEAe7w:1
++ [Sirenix.OdinInspector.TabGroupAttribute+TabSubGroupAttribute]
+	GroupName = "Info"
+	Icon = QuestionSquareFill
+	TextColor = "cyan"
+
+# _CrosshairCanvas
+Position: $KDZ4N67vLUHkJbv8ZRqjRW:0
+
+# _CrosshairCanvasPrefab
+Position: $N3nPD5Zg92orD8tw7jTiBc:0
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 150
++ [Sirenix.OdinInspector.AssetsOnlyAttribute]
