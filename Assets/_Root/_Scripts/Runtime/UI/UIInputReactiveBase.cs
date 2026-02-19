@@ -1,6 +1,6 @@
 ﻿using PROJECTNAME.Managers;
 using UnityEngine;
-using DeviceType = PROJECTNAME.Managers.DeviceType;
+using DeviceType = PROJECTNAME.Utilities.Types.DeviceType;
 
 namespace PROJECTNAME.UI
 {
@@ -10,6 +10,7 @@ public abstract class UIInputReactiveBase : MonoBehaviour
 	{
 		RegisterToUIManager();
 	}
+
 
 	public abstract void HandleDeviceChange(DeviceType deviceType);
 

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 9198883520861842570}
   m_Layer: 0
   m_Name: UIManager
-  m_TagString: Manager
+  m_TagString: Systems
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -44,5 +44,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2ac2c0c4feccf248a2ad90adc1672b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _CrosshairCanvas: {fileID: 0}
   _CrosshairCanvasPrefab: {fileID: 4956605202365500484, guid: 456c8165403796148a37d095b44394c4, type: 3}

@@ -1,0 +1,8 @@
+OVDF v1.1
+PROJECTNAME.Utilities.HierarchyGroups+Group, Project
+
+# Name
+Position: $root:0
+
+# Object
++ [Sirenix.OdinInspector.ReadOnlyAttribute]

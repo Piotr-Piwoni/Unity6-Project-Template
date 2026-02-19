@@ -10,14 +10,14 @@ TagManager:
   - LightsGroup
   - CameraGroup
   - MiscGroup
-  - Manager
-  - System
   - Spawner
+  - Systems
+  - SystemGroup
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Ground
   - Water
   - UI
   - 

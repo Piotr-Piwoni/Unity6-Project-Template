@@ -1,30 +1,32 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using PROJECTNAME.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.Pool;
-using Debug = UnityEngine.Debug;
+using AudioType = PROJECTNAME.Utilities.Types.AudioType;
 
 namespace PROJECTNAME.Systems
 {
-[RequireComponent(typeof(AudioSource))]
+/// <summary>
+///     Centralized audio playback system using pooled AudioSources.
+/// </summary>
+/// <remarks>
+///     Handles music, SFX, and dialogue playback through an AudioMixer.
+///     Uses object pooling to minimize runtime allocations.
+/// </remarks>
+[HideMonoScript, RequireComponent(typeof(AudioSource)),]
 public class AudioSystem : Singleton<AudioSystem>
 {
-	[SerializeField, TabGroup("", "Debug")]
-	private bool _Log;
-	[SerializeField,
-	 TabGroup("", "Settings", SdfIconType.GearFill, TextColor = "yellow"),
-	 MinValue(1)]
+	[SerializeField, MinValue(1),]
 	private int _MaxAudioSources = 50;
 
-	private readonly Dictionary<AudioSource, Coroutine> _AudioSourceCoroutines =
-		new();
+	private readonly Dictionary<AudioSource, Coroutine> _AudioSourceCoroutines = new();
 	private AudioMixer _Mixer;
 	private AudioSource _MusicSrc;
 	private ObjectPool<AudioSource> _AudioSourcePool;
+
 
 	protected override void Awake()
 	{
@@ -41,28 +43,35 @@ public class AudioSystem : Singleton<AudioSystem>
 
 		// Initialize the pool.
 		_AudioSourcePool = new ObjectPool<AudioSource>(CreateAudioSource,
-			OnGetAudioSource, OnReleaseAudioSource, OnDestroyAudioSource,
-			defaultCapacity: 10, maxSize: _MaxAudioSources);
+													   OnGetAudioSource,
+													   OnReleaseAudioSource,
+													   OnDestroyAudioSource,
+													   defaultCapacity: 10,
+													   maxSize: _MaxAudioSources);
 	}
 
 	private void Update()
 	{
-		// Only if logging is enabled.
+		# if UNITY_EDITOR
 		LogSources();
+		#endif
 	}
+
 
 	/// <summary>
 	///     Plays the provided audio clip.
 	/// </summary>
 	/// <param name="clip">The audio to play.</param>
-	/// <param name="position">The position of the clip in 3D.</param>
+	/// <param name="position">The optional world position for 3D audio.</param>
 	/// <param name="type">What type of audio is it.</param>
 	/// <param name="volume">The clip's volume.</param>
 	/// <param name="loop">If the clip should be looping.</param>
 	/// <returns>The audio source used.</returns>
-	public AudioSource PlayClip(AudioClip clip, Vector3? position = null,
-		AudioType type = AudioType.Sfx,
-		float volume = 1f, bool loop = false)
+	public AudioSource PlayClip(AudioClip clip,
+			Vector3? position = null,
+			AudioType type = AudioType.Sfx,
+			float volume = 1f,
+			bool loop = false)
 	{
 		// Retrieve an AudioSource from the pool.
 		AudioSource audioSrc = _AudioSourcePool.Get();
@@ -84,15 +93,15 @@ public class AudioSystem : Singleton<AudioSystem>
 		// Based on the AudioType, find the corresponding mixer group.
 		switch (type)
 		{
-			case AudioType.Music:
-				FindMixerGroup(audioSrc, "Music");
-				break;
-			case AudioType.Sfx:
-				FindMixerGroup(audioSrc, "SFX");
-				break;
-			case AudioType.Dialogue:
-				FindMixerGroup(audioSrc, "Dialogue");
-				break;
+		case AudioType.Music:
+			FindMixerGroup(audioSrc, "Music");
+			break;
+		case AudioType.Sfx:
+			FindMixerGroup(audioSrc, "SFX");
+			break;
+		case AudioType.Dialogue:
+			FindMixerGroup(audioSrc, "Dialogue");
+			break;
 		}
 
 		audioSrc.clip = clip;
@@ -139,15 +148,14 @@ public class AudioSystem : Singleton<AudioSystem>
 	/// <param name="audioSrc">The audio source that you wish to stop playing.</param>
 	public void StopClip(AudioSource audioSrc)
 	{
-		if (!audioSrc)
-			return;
+		if (!audioSrc) return;
 
 		// Stop the audio source and update the dictionary.
 		audioSrc.Stop();
 
 		// If it's in the dictionary, and it has a coroutine, stop it.
 		if (!_AudioSourceCoroutines.TryGetValue(audioSrc,
-			    out Coroutine coroutine))
+												out Coroutine coroutine))
 			return;
 
 		// Clean up.
@@ -163,13 +171,14 @@ public class AudioSystem : Singleton<AudioSystem>
 		_AudioSourcePool.Release(audioSrc);
 	}
 
-	/// Stops the current music from playing.
 	public void StopMusic()
 	{
 		_MusicSrc.Stop();
 	}
 
-	/// Create a new AudioSource.
+	/// <summary>
+	///     Creates a new pooled AudioSource instance.
+	/// </summary>
 	private AudioSource CreateAudioSource()
 	{
 		var tempObj = new GameObject("TempSrc", typeof(AudioSource));
@@ -180,59 +189,29 @@ public class AudioSystem : Singleton<AudioSystem>
 	}
 
 	/// <summary>
-	///     Find and assign the desired group from the Audio Mixer.
+	///     Assigns an AudioMixerGroup to an AudioSource.
 	/// </summary>
-	/// <param name="audioSrs">The source that the mixer group will be assigned to.</param>
-	/// <param name="groupName">The name of the mixer group to find.</param>
+	/// <param name="audioSrs">The AudioSource to configure.</param>
+	/// <param name="groupName">The name of the mixer group.</param>
 	private void FindMixerGroup(AudioSource audioSrs, string groupName)
 	{
-		var mixerGroups = _Mixer.FindMatchingGroups(groupName);
+		AudioMixerGroup[] mixerGroups = _Mixer.FindMatchingGroups(groupName);
 		if (mixerGroups.Length > 0)
 			audioSrs.outputAudioMixerGroup = mixerGroups[0];
 		else
 		{
 			Debug.LogError($"The group: \"{groupName}\", was not found in " +
-			               "Audio Mixer! Defaulting to \"Master\".");
+						   "Audio Mixer! Defaulting to \"Master\".");
 
 			// Fallback to Master.
 			audioSrs.outputAudioMixerGroup =
-				_Mixer.FindMatchingGroups("Master")[0];
+					_Mixer.FindMatchingGroups("Master")[0];
 		}
 	}
 
-	/// Output to console the AudioSources and their respected Coroutines.
-	[Conditional("UNITY_EDITOR")]
-	private void LogSources()
-	{
-		if (!_Log || _AudioSourceCoroutines.Count <= 0)
-			return;
-
-		Debug.Log(
-			$"<color=Red>------------- {name}<AudioSystem> Log Start -------------</color>");
-		foreach ((AudioSource key, Coroutine value) in _AudioSourceCoroutines)
-		{
-			if (!key)
-				continue;
-
-			// If there's an active coroutine, get its hash code, otherwise output NULL.
-			var logValue = value != null
-				? value.GetHashCode().ToString()
-				: "Null";
-
-			// If the source is looping, specify that it is.
-			if (key.loop)
-				logValue += ", is Looping";
-
-			Debug.Log($"{key.name}: " +
-			          $"<color=yellow>{key.GetInstanceID()}</color>\t" +
-			          $"Coroutine: <color=green>{logValue}</color>");
-		}
-
-		Debug.Log(
-			$"<color=Red>------------- {name}<AudioSystem> End -------------</color>");
-	}
-
-	/// Called when an AudioSource is destroyed.
+	/// <summary>
+	///     Cleans up an AudioSource when it is destroyed by the pool.
+	/// </summary>
 	private void OnDestroyAudioSource(AudioSource audioSource)
 	{
 		// Stop its corresponding coroutine and clean up.
@@ -245,21 +224,21 @@ public class AudioSystem : Singleton<AudioSystem>
 		Destroy(audioSource.gameObject);
 	}
 
-	/// Called when an AudioSource is retrieved from the pool
 	private static void OnGetAudioSource(AudioSource audioSource)
 	{
 		audioSource.gameObject.SetActive(true);
 	}
 
-	/// Called when an AudioSource is released back to the pool.
 	private static void OnReleaseAudioSource(AudioSource audioSource)
 	{
 		audioSource.gameObject.SetActive(false);
 	}
 
-	/// Release the AudioSource back to the pool after it finishes playing.
+	/// <summary>
+	///     Release the AudioSource back to the pool after it finishes playing.
+	/// </summary>
 	private IEnumerator ReturnAudioSourceToPool(AudioSource audioSource,
-		float clipLength)
+			float clipLength)
 	{
 		yield return new WaitForSeconds(clipLength);
 		_AudioSourcePool.Release(audioSource);
@@ -269,6 +248,9 @@ public class AudioSystem : Singleton<AudioSystem>
 			_AudioSourceCoroutines[audioSource] = null;
 	}
 
+	/// <summary>
+	///     Starts a coroutine to return a non-looping AudioSource to the pool.
+	/// </summary>
 	private Coroutine WaitToFinishPlaying(AudioSource src)
 	{
 		// Ensure that the coroutine only happens for non-looping sources.
@@ -277,24 +259,24 @@ public class AudioSystem : Singleton<AudioSystem>
 		// Ensure no coroutine is running for the same source.
 		Coroutine coroutine = null;
 		if (!_AudioSourceCoroutines.ContainsKey(src) ||
-		    _AudioSourceCoroutines[src] == null)
-		{
+			_AudioSourceCoroutines[src] == null)
 			coroutine = StartCoroutine(ReturnAudioSourceToPool(src,
-				src.clip.length));
-		}
+										   src.clip.length));
 
 		return coroutine;
 	}
 
-#if UNITY_EDITOR
 
-	[SerializeField,
-	 TabGroup("", "Debug", SdfIconType.BugFill, TextColor = "red"),
-	 EnableIf(nameof(_Log))]
+	#if UNITY_EDITOR
+	[SerializeField]
+	private bool _Log;
+	[SerializeField]
+	private bool _DebugMode;
+	[SerializeField]
 	private AudioClip _TestingClip;
-	[SerializeField, TabGroup("", "Debug"), EnableIf(nameof(_Log))]
+	[SerializeField]
 	private bool _LoopClip;
-	[SerializeField, TabGroup("", "Debug"), EnableIf(nameof(_Log)), ReadOnly]
+	[SerializeField, ReadOnly,]
 	private AudioSource _TestingSource;
 
 
@@ -318,13 +300,36 @@ public class AudioSystem : Singleton<AudioSystem>
 
 		_TestingSource = PlayClip(_TestingClip, loop: _LoopClip);
 	}
-#endif
-}
 
-public enum AudioType
-{
-	Music = 0,
-	Sfx = 1,
-	Dialogue = 2
+	/// <summary>
+	///     Outputs debug information about active AudioSources.
+	/// </summary>
+	private void LogSources()
+	{
+		if (!_Log || _AudioSourceCoroutines.Count <= 0)
+			return;
+
+		Debug.Log(
+				$"<color=Red>------------- {name}<AudioSystem> Log Start -------------</color>");
+		foreach ((AudioSource key, Coroutine value) in _AudioSourceCoroutines)
+		{
+			if (!key) continue;
+
+			// If there's an active coroutine, get its hash code, otherwise output NULL.
+			string logValue = value != null ? value.GetHashCode().ToString() : "Null";
+
+			// If the source is looping, specify that it is.
+			if (key.loop)
+				logValue += ", is Looping";
+
+			Debug.Log($"{key.name}: " +
+					  $"<color=yellow>{key.GetInstanceID()}</color>\t" +
+					  $"Coroutine: <color=green>{logValue}</color>");
+		}
+
+		Debug.Log(
+				$"<color=Red>------------- {name}<AudioSystem> End -------------</color>");
+	}
+	#endif
 }
 }

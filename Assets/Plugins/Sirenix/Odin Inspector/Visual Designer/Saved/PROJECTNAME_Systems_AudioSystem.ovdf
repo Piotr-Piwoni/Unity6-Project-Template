@@ -3,22 +3,65 @@ PROJECTNAME.Systems.AudioSystem, Project
 MetaGuid:5da0761b5a4e4fb2ba352d2a86942dba
 
 # $XwJoQoho3Xbvy6FwSnpZHo
-Position: "/Debug":4
+Position: $JAtdWHpCDxrfbcVbeBS1ot:3
 + [Sirenix.OdinInspector.ResponsiveButtonGroupAttribute]
 	GroupName = "Testing Buttons"
 
 # "_DefaultResponsiveButtonGroup"
 - [Sirenix.OdinInspector.ResponsiveButtonGroupAttribute]
 
+# $McUNeLFRnkUAVkZi6yAgk5
+Position: $root:22
++ [Sirenix.OdinInspector.TabGroupAttribute]
+	GroupName = "AudioSystem"
+
+# $V11QnkUPQ7J2NzqKHLpBKF
+Position: $McUNeLFRnkUAVkZi6yAgk5:0
++ [Sirenix.OdinInspector.TabGroupAttribute+TabSubGroupAttribute]
+	GroupName = "Settings"
+	Icon = GearFill
+	TextColor = "yellow"
+
+# $RtGwYmba2w6F9uDq42xbsQ
+Position: $McUNeLFRnkUAVkZi6yAgk5:1
++ [Sirenix.OdinInspector.TabGroupAttribute+TabSubGroupAttribute]
+	GroupName = "Info"
+	Icon = QuestionSquareFill
+	TextColor = "cyan"
+
+# $JAtdWHpCDxrfbcVbeBS1ot
+Position: $V11QnkUPQ7J2NzqKHLpBKF:3
++ [Sirenix.OdinInspector.FoldoutGroupAttribute]
+	GroupName = "Debug"
+	VisibleIf = "@_DebugMode"
+
 # _Log
-Position: "/Debug":0
+Position: $V11QnkUPQ7J2NzqKHLpBKF:1
 
 # StopTestingClip()
 Position: $XwJoQoho3Xbvy6FwSnpZHo:1
 + [Sirenix.OdinInspector.EnableIfAttribute]
-	Condition = "_Log"
+	Condition = "@_TestingClip"
 
 # PlayTestingClip()
 Position: $XwJoQoho3Xbvy6FwSnpZHo:0
 + [Sirenix.OdinInspector.EnableIfAttribute]
-	Condition = "_Log"
+	Condition = "@_TestingClip"
+
+# _MaxAudioSources
+Position: $V11QnkUPQ7J2NzqKHLpBKF:0
+
+# _TestingClip
+Position: $JAtdWHpCDxrfbcVbeBS1ot:0
++ [Sirenix.OdinInspector.AssetsOnlyAttribute]
+
+# _LoopClip
+Position: $JAtdWHpCDxrfbcVbeBS1ot:1
++ [Sirenix.OdinInspector.EnableIfAttribute]
+	Condition = "@_TestingClip"
+
+# _TestingSource
+Position: $JAtdWHpCDxrfbcVbeBS1ot:2
+
+# _DebugMode
+Position: $V11QnkUPQ7J2NzqKHLpBKF:2
