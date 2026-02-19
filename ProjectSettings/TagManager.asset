@@ -12,6 +12,7 @@ TagManager:
   - MiscGroup
   - Spawner
   - Systems
+  - SystemGroup
   layers:
   - Default
   - TransparentFX

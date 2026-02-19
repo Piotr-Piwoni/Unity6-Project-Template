@@ -1,0 +1,61 @@
+OVDF v1.1
+PROJECTNAME.Managers.GameManager, Project
+MetaGuid:43a74e58b56948bdacff61bec5d8b7c5
+
+# $UTN3QkaxPZBBZ5aVRarrzt
+Position: $root:31
++ [Sirenix.OdinInspector.TabGroupAttribute]
+	GroupName = "GameManager"
+
+# $4taycHW8oKwg2K91zJrsSh
+Position: $UTN3QkaxPZBBZ5aVRarrzt:0
++ [Sirenix.OdinInspector.TabGroupAttribute+TabSubGroupAttribute]
+	GroupName = "Settings"
+	TextColor = "yellow"
+	Icon = GearFill
+
+# $V27ja8GZ3FS5xHSJYSMrj8
+Position: $UTN3QkaxPZBBZ5aVRarrzt:1
++ [Sirenix.OdinInspector.TabGroupAttribute+TabSubGroupAttribute]
+	GroupName = "Info"
+	Icon = QuestionSquareFill
+	TextColor = "cyan"
+
+# $YC3wfV9KuhGYCAY4TV1EvQ
+Position: $4taycHW8oKwg2K91zJrsSh:1
++ [Sirenix.OdinInspector.FoldoutGroupAttribute]
+	GroupName = "Prefabs"
+
+# $XX5qQ3x1tHYnXGVoQRR4AG
+Position: $4taycHW8oKwg2K91zJrsSh:2
++ [Sirenix.OdinInspector.FoldoutGroupAttribute]
+	GroupName = "Player Settings"
+
+# _PlayerPrefab
+Position: $YC3wfV9KuhGYCAY4TV1EvQ:0
++ [Sirenix.OdinInspector.AssetsOnlyAttribute]
+
+# _MusicClip
+Position: $4taycHW8oKwg2K91zJrsSh:3
++ [Sirenix.OdinInspector.AssetsOnlyAttribute]
+
+# Player
+Position: $V27ja8GZ3FS5xHSJYSMrj8:1
+
+# CinemachineCam
+Position: $V27ja8GZ3FS5xHSJYSMrj8:2
+
+# CurrentState
+Position: $V27ja8GZ3FS5xHSJYSMrj8:0
+
+# Camera
+Position: $V27ja8GZ3FS5xHSJYSMrj8:3
+
+# _SpawnPlayer
+Position: $XX5qQ3x1tHYnXGVoQRR4AG:0
+
+# _UsePlayerSpawner
+Position: $XX5qQ3x1tHYnXGVoQRR4AG:1
+
+# _Groups
+Position: $4taycHW8oKwg2K91zJrsSh:0

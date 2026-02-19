@@ -7,24 +7,36 @@ using UnityEngine.SceneManagement;
 
 namespace PROJECTNAME.Managers
 {
+/// <summary>
+///     Central authority responsible for high-level game state and lifecycle management.
+/// </summary>
+/// <remarks>
+///     Handles player instantiation, camera setup, music playback, and game state transitions.
+///     This manager persists across scene changes.
+/// </remarks>
+[HideMonoScript]
 public class GameManager : PersistentSingleton<GameManager>
 {
-	[TabGroup("", "Info", SdfIconType.QuestionSquareFill,
-		 TextColor = "lightblue"), ShowInInspector, ReadOnly]
+	[ShowInInspector, ReadOnly,]
 	public Camera Camera { get; private set; }
-	[TabGroup("", "Info"), ShowInInspector, ReadOnly]
+	[ShowInInspector, ReadOnly,]
 	public CinemachineCamera CinemachineCam { get; private set; }
-	[TabGroup("", "Info"), ShowInInspector, ReadOnly]
+	[ShowInInspector, ReadOnly,]
 	public GameObject Player { get; private set; }
-	[TabGroup("", "Info"), ShowInInspector, ReadOnly,
-	 PropertyOrder(-1f)]
+	[ShowInInspector, ReadOnly,]
 	public GameState CurrentState { get; private set; } = GameState.Playing;
+	public HierarchyGroups Groups => _Groups;
 
-	[SerializeField,
-	 TabGroup("", "Settings", SdfIconType.GearFill, TextColor = "yellow")]
+	[SerializeField]
 	private GameObject _PlayerPrefab;
-	[SerializeField, TabGroup("", "Settings")]
+	[SerializeField]
 	private AudioClip _MusicClip;
+	[SerializeField]
+	private bool _UsePlayerSpawner;
+	[SerializeField]
+	private bool _SpawnPlayer = true;
+	[SerializeField]
+	private HierarchyGroups _Groups;
 
 	private GameState _PreviousState;
 	private Spawner _PlayerSpawner;
@@ -35,15 +47,25 @@ public class GameManager : PersistentSingleton<GameManager>
 		base.Awake();
 		_PreviousState = CurrentState;
 
-		HandlePlayerInit();
+		_Groups.Initialize();
+
+		if (_SpawnPlayer)
+			HandlePlayerInit();
 		GetCamera();
+
+		// Hide the cursor on game start.
+		Cursor.lockState = CursorLockMode.Locked;
 	}
+
+	#if UNITY_EDITOR
+	private void Reset()
+	{
+		_Groups.Initialize();
+	}
+	#endif
 
 	private void Start()
 	{
-		// Hide the cursor on game start.
-		Cursor.lockState = CursorLockMode.Locked;
-
 		// If a music clip is provided, play the music.
 		if (_MusicClip)
 			AudioSystem.Instance.PlayMusic(_MusicClip);
@@ -54,42 +76,45 @@ public class GameManager : PersistentSingleton<GameManager>
 		// Handle game functionality differently based on current state.
 		switch (CurrentState)
 		{
-			case GameState.MainMenu:
-				// Logic for when the game is in the Main Menu.
-				break;
-			case GameState.Playing:
-				// Logic for when the game is actually playing.
-				break;
-			case GameState.Talking:
-				// Logic for when talking occurs in the game.
-				break;
-			case GameState.Pause:
-				// Logic for when the game is paused.
-				break;
-			case GameState.Menu:
-				// Logic for when the game is in a UI menu.
-				break;
+		case GameState.MainMenu:
+			// Logic for when the game is in the Main Menu.
+			break;
+		case GameState.Playing:
+			// Logic for when the game is actually playing.
+			break;
+		case GameState.Talking:
+			// Logic for when talking occurs in the game.
+			break;
+		case GameState.Pause:
+			// Logic for when the game is paused.
+			break;
+		case GameState.Menu:
+			// Logic for when the game is in a UI menu.
+			break;
 		}
 	}
 
 
+	/// <summary>
+	///     Transitions the game into a new state.
+	/// </summary>
+	/// <param name="newState">The state to transition into.</param>
 	public void ChangeState(GameState newState)
 	{
 		_PreviousState = CurrentState;
 		CurrentState = newState;
 	}
 
-	public override void OnSceneChange(Scene scene, LoadSceneMode mode)
-	{
-	}
+	public override void OnSceneChange(Scene scene, LoadSceneMode mode) { }
 
-	/// Try to obtain the camera in the scene.
+	/// <summary>
+	///     Locates and initializes the active camera and Cinemachine camera.
+	/// </summary>
 	private void GetCamera()
 	{
 		// Locate the main camera.
-		var cameraObjs = FindObjectsByType<Camera>(
-			FindObjectsInactive.Include,
-			FindObjectsSortMode.None);
+		Camera[] cameraObjs = FindObjectsByType<Camera>(FindObjectsInactive.Include,
+														FindObjectsSortMode.None);
 
 		foreach (Camera camObj in cameraObjs)
 			if (camObj.CompareTag("MainCamera"))
@@ -104,10 +129,8 @@ public class GameManager : PersistentSingleton<GameManager>
 		// Try to get the CinemachineCamera component from the camera's parent.
 		CinemachineCam = Camera.GetComponentInParent<CinemachineCamera>(true);
 		if (!CinemachineCam)
-		{
 			Debug.LogWarning("A Cinemachine Camera was not found in the " +
-			                 "scene or is not the parent object of the Camera.");
-		}
+							 "scene or is not the parent object of the Camera.");
 
 		// If there's a player, move the cameras to the player, otherwise move
 		// them to the Game Manager.
@@ -115,9 +138,7 @@ public class GameManager : PersistentSingleton<GameManager>
 		{
 			if (CinemachineCam.transform.parent == Player?.transform)
 				return;
-			CinemachineCam.transform.SetParent(Player
-				? Player.transform
-				: transform);
+			CinemachineCam.transform.SetParent(Player ? Player.transform : transform);
 			return;
 		}
 
@@ -126,34 +147,45 @@ public class GameManager : PersistentSingleton<GameManager>
 		Camera.transform.SetParent(Player ? Player.transform : transform);
 	}
 
-
-	/// Handle Player initialization.
+	/// <summary>
+	///     Handles player discovery, instantiation, and spawning.
+	/// </summary>
 	private void HandlePlayerInit()
 	{
-		// Get the player if it already exists, otherwise create one if possible.
+		// Attempt to locate an existing player in the scene.
 		Player = GameObject.FindGameObjectWithTag("Player");
+
+		// Spawn the player from a prefab if none exists.
 		if (!Player && _PlayerPrefab)
 			Player = Instantiate(_PlayerPrefab);
 
+		if (!Player)
+		{
+			Debug.LogError("No valid player found in scene nor a valid player " +
+						   "prefab was provided to spawn the player!");
+			return;
+		}
+
+		Player.transform.SetParent(Groups.ActorGroup.Object);
+
 		// Try to obtain the player spawner.
-		var spawners = FindObjectsByType<Spawner>(
-			FindObjectsSortMode.None);
+		Spawner[] spawners = FindObjectsByType<Spawner>(FindObjectsSortMode.None);
 		foreach (Spawner spawner in spawners)
 		{
-			if (spawner.SpawnerTag != SpawnerTag.Player)
-				continue;
+			if (spawner.SpawnerTag != SpawnerTag.Player) continue;
 			_PlayerSpawner = spawner;
 			break;
 		}
 
-		// If spawner found, spawn the player there.
-		if (_PlayerSpawner)
-			_PlayerSpawner.Spawn(Player.transform, true);
-		else
+		if (!_PlayerSpawner && _UsePlayerSpawner)
 		{
-			Debug.Log("<color=yellow>Player spawner was not found " +
-			          "in the scene.</color>");
+			Debug.LogWarning("Player spawner was not found in the scene.");
+			return;
 		}
+
+		// If spawner found, spawn the player there.
+		if (_UsePlayerSpawner)
+			_PlayerSpawner.Spawn(Player.transform, true);
 	}
 
 	public enum GameState
@@ -162,7 +194,7 @@ public class GameManager : PersistentSingleton<GameManager>
 		Playing = 1,
 		Talking = 2,
 		Pause = 3,
-		Menu = 4
+		Menu = 4,
 	}
 }
 }
