@@ -18,33 +18,26 @@ public class InputManager : PersistentSingleton<InputManager>
 	public event Action OnMovePressed;
 	public event Action<DeviceType> OnDeviceChanged;
 
-	[TabGroup("", "Info", SdfIconType.QuestionSquareFill,
-			  TextColor = "lightblue"), ShowInInspector, ReadOnly,]
-	public DeviceType CurrentDeviceType { get; private set; } =
-		DeviceType.Unknown;
-
+	[ShowInInspector, ReadOnly,]
+	public DeviceType CurrentDeviceType { get; private set; } = DeviceType.Unknown;
 	public Vector2 LookInput { get; private set; } = Vector2.zero;
 	public Vector2 MoveInput { get; private set; } = Vector2.zero;
 
-	[SerializeField, TabGroup("", "Info"), ReadOnly,]
+	[SerializeField, ReadOnly,]
 	private PlayerInput _PlayerInput;
-
-	[SerializeField,
-	 TabGroup("", "Settings", SdfIconType.GearFill, TextColor = "yellow"),
-	 FoldoutGroup("/Settings/Input References"),]
+	[SerializeField]
 	private InputActionReference _MoveAction;
-	[SerializeField, FoldoutGroup("/Settings/Input References"),]
+	[SerializeField]
 	private InputActionReference _LookAction;
-	[SerializeField, FoldoutGroup("/Settings/Input References"),]
+	[SerializeField]
 	private InputActionReference _JumpAction;
-	[SerializeField, FoldoutGroup("/Settings/Input References"),]
+	[SerializeField]
 	private InputActionReference _AttackAction;
-	[SerializeField, FoldoutGroup("/Settings/Input References"),]
+	[SerializeField]
 	private InputActionReference _InteractionAction;
-
-	[SerializeField, FoldoutGroup("/Settings/Action Maps"),]
+	[SerializeField]
 	private string _GameplayActionMap = "Gameplay";
-	[SerializeField, FoldoutGroup("/Settings/Action Maps"),]
+	[SerializeField]
 	private string _UIActionMap = "UI";
 
 	private Action<InputAction.CallbackContext> _attackCallback;
@@ -68,11 +61,6 @@ public class InputManager : PersistentSingleton<InputManager>
 		InitializeActionMaps();
 	}
 
-	private void Start()
-	{
-		// Enable the player once the Input Manager initializes.
-		GameManager.Instance.Player.SetActive(true);
-	}
 
 	public override void OnEnable()
 	{
