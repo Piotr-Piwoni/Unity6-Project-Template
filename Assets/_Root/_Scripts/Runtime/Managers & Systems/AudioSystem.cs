@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using PROJECTNAME.Utilities;
@@ -11,18 +11,20 @@ using AudioType = PROJECTNAME.Utilities.Types.AudioType;
 
 namespace PROJECTNAME.Systems
 {
-[RequireComponent(typeof(AudioSource))]
+/// <summary>
+///     Centralized audio playback system using pooled AudioSources.
+/// </summary>
+/// <remarks>
+///     Handles music, SFX, and dialogue playback through an AudioMixer.
+///     Uses object pooling to minimize runtime allocations.
+/// </remarks>
+[HideMonoScript, RequireComponent(typeof(AudioSource)),]
 public class AudioSystem : Singleton<AudioSystem>
 {
-	[SerializeField, TabGroup("", "Debug"),]
-	private bool _Log;
-	[SerializeField,
-	 TabGroup("", "Settings", SdfIconType.GearFill, TextColor = "yellow"),
-	 MinValue(1),]
+	[SerializeField, MinValue(1),]
 	private int _MaxAudioSources = 50;
 
-	private readonly Dictionary<AudioSource, Coroutine> _AudioSourceCoroutines =
-			new();
+	private readonly Dictionary<AudioSource, Coroutine> _AudioSourceCoroutines = new();
 	private AudioMixer _Mixer;
 	private AudioSource _MusicSrc;
 	private ObjectPool<AudioSource> _AudioSourcePool;
@@ -61,7 +63,7 @@ public class AudioSystem : Singleton<AudioSystem>
 	///     Plays the provided audio clip.
 	/// </summary>
 	/// <param name="clip">The audio to play.</param>
-	/// <param name="position">The position of the clip in 3D.</param>
+	/// <param name="position">The optional world position for 3D audio.</param>
 	/// <param name="type">What type of audio is it.</param>
 	/// <param name="volume">The clip's volume.</param>
 	/// <param name="loop">If the clip should be looping.</param>
@@ -171,13 +173,14 @@ public class AudioSystem : Singleton<AudioSystem>
 		_AudioSourcePool.Release(audioSrc);
 	}
 
-	/// Stops the current music from playing.
 	public void StopMusic()
 	{
 		_MusicSrc.Stop();
 	}
 
-	/// Create a new AudioSource.
+	/// <summary>
+	///     Creates a new pooled AudioSource instance.
+	/// </summary>
 	private AudioSource CreateAudioSource()
 	{
 		var tempObj = new GameObject("TempSrc", typeof(AudioSource));
@@ -188,10 +191,10 @@ public class AudioSystem : Singleton<AudioSystem>
 	}
 
 	/// <summary>
-	///     Find and assign the desired group from the Audio Mixer.
+	///     Assigns an AudioMixerGroup to an AudioSource.
 	/// </summary>
-	/// <param name="audioSrs">The source that the mixer group will be assigned to.</param>
-	/// <param name="groupName">The name of the mixer group to find.</param>
+	/// <param name="audioSrs">The AudioSource to configure.</param>
+	/// <param name="groupName">The name of the mixer group.</param>
 	private void FindMixerGroup(AudioSource audioSrs, string groupName)
 	{
 		AudioMixerGroup[] mixerGroups = _Mixer.FindMatchingGroups(groupName);
@@ -208,7 +211,9 @@ public class AudioSystem : Singleton<AudioSystem>
 		}
 	}
 
-	/// Output to console the AudioSources and their respected Coroutines.
+	/// <summary>
+	///     Cleans up an AudioSource when it is destroyed by the pool.
+	/// </summary>
 	[Conditional("UNITY_EDITOR")]
 	private void LogSources()
 	{
@@ -238,7 +243,6 @@ public class AudioSystem : Singleton<AudioSystem>
 				$"<color=Red>------------- {name}<AudioSystem> End -------------</color>");
 	}
 
-	/// Called when an AudioSource is destroyed.
 	private void OnDestroyAudioSource(AudioSource audioSource)
 	{
 		// Stop its corresponding coroutine and clean up.
@@ -251,19 +255,19 @@ public class AudioSystem : Singleton<AudioSystem>
 		Destroy(audioSource.gameObject);
 	}
 
-	/// Called when an AudioSource is retrieved from the pool
 	private static void OnGetAudioSource(AudioSource audioSource)
 	{
 		audioSource.gameObject.SetActive(true);
 	}
 
-	/// Called when an AudioSource is released back to the pool.
 	private static void OnReleaseAudioSource(AudioSource audioSource)
 	{
 		audioSource.gameObject.SetActive(false);
 	}
 
-	/// Release the AudioSource back to the pool after it finishes playing.
+	/// <summary>
+	///     Release the AudioSource back to the pool after it finishes playing.
+	/// </summary>
 	private IEnumerator ReturnAudioSourceToPool(AudioSource audioSource,
 			float clipLength)
 	{
@@ -275,6 +279,9 @@ public class AudioSystem : Singleton<AudioSystem>
 			_AudioSourceCoroutines[audioSource] = null;
 	}
 
+	/// <summary>
+	///     Starts a coroutine to return a non-looping AudioSource to the pool.
+	/// </summary>
 	private Coroutine WaitToFinishPlaying(AudioSource src)
 	{
 		// Ensure that the coroutine only happens for non-looping sources.
