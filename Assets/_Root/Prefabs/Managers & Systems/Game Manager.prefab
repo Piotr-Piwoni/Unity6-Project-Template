@@ -46,7 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Project::PROJECTNAME.Managers.GameManager
   _PlayerPrefab: {fileID: 0}
   _MusicClip: {fileID: 0}
-  _UsePlayerSpawner: 0
+  _UsePlayerSpawner: 1
   _SpawnPlayer: 1
   _Groups:
     ActorGroup:
