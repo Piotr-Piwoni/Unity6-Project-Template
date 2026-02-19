@@ -3,7 +3,7 @@ PROJECTNAME.Managers.InputManager, Project
 MetaGuid:a3cb3204a6befc74c9588e5100cbc353
 
 # $G6c3TwKWtsMQ2Wd7vgVtrh
-Position: $root:54
+Position: $root:53
 + [Sirenix.OdinInspector.TabGroupAttribute]
 	GroupName = "InputManager"
 
@@ -63,3 +63,6 @@ Position: $UpqX9oV1yFRoMyyRx7WKm7:0
 Position: $UpqX9oV1yFRoMyyRx7WKm7:1
 + [Sirenix.OdinInspector.LabelWidthAttribute]
 	Width = 150
+
+# _SprintAction
+Position: $3qKirxsStUJNm71zem2mo9:5

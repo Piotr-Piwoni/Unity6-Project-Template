@@ -17,6 +17,7 @@ public class InputManager : PersistentSingleton<InputManager>
 	public event Action OnJumpPressed;
 	public event Action OnMovePressed;
 	public event Action<DeviceType> OnDeviceChanged;
+	public bool IsSprinting { get; private set; }
 
 	[ShowInInspector, ReadOnly,]
 	public DeviceType CurrentDeviceType { get; private set; } = DeviceType.Unknown;
@@ -36,6 +37,8 @@ public class InputManager : PersistentSingleton<InputManager>
 	[SerializeField]
 	private InputActionReference _InteractionAction;
 	[SerializeField]
+	private InputActionReference _SprintAction;
+	[SerializeField]
 	private string _GameplayActionMap = "Gameplay";
 	[SerializeField]
 	private string _UIActionMap = "UI";
@@ -49,15 +52,6 @@ public class InputManager : PersistentSingleton<InputManager>
 	protected override void Awake()
 	{
 		base.Awake();
-
-		// Obtain the PlayerInput component from the player object.
-		_PlayerInput = GameManager.Instance.Player.GetComponent<PlayerInput>();
-		if (!_PlayerInput)
-		{
-			Debug.LogError("PlayerInput not found on player object!");
-			return;
-		}
-
 		InitializeActionMaps();
 	}
 
@@ -66,6 +60,8 @@ public class InputManager : PersistentSingleton<InputManager>
 	{
 		base.OnEnable();
 		BindInput();
+
+		if (!_PlayerInput) return;
 		_PlayerInput.onControlsChanged += OnControlsChanged;
 		UpdateCurrentDeviceType(_PlayerInput.currentControlScheme);
 	}
@@ -74,7 +70,9 @@ public class InputManager : PersistentSingleton<InputManager>
 	{
 		base.OnDisable();
 		UnbindInput();
-		_PlayerInput.onControlsChanged -= OnControlsChanged;
+
+		if (_PlayerInput)
+			_PlayerInput.onControlsChanged -= OnControlsChanged;
 	}
 
 	public override void OnSceneChange(Scene scene, LoadSceneMode mode) { }
@@ -92,8 +90,7 @@ public class InputManager : PersistentSingleton<InputManager>
 			return;
 		}
 
-		if (_ActionMapDictionary.TryGetValue(actionMap,
-											 out string actionMapName))
+		if (_ActionMapDictionary.TryGetValue(actionMap, out string actionMapName))
 			_PlayerInput.SwitchCurrentActionMap(actionMapName);
 		else
 			Debug.LogError($"No action map found for \"{actionMap}\"");
@@ -105,14 +102,14 @@ public class InputManager : PersistentSingleton<InputManager>
 		_MoveAction.action.canceled += OnMoveCanceled;
 		_LookAction.action.performed += OnLookPerformed;
 		_LookAction.action.canceled += OnLookCanceled;
+		_SprintAction.action.performed += OnSprintPerformed;
+		_SprintAction.action.canceled += OnSprintCanceled;
 
 
 		_jumpCallback = _ => OnJumpPressed?.Invoke();
 		_JumpAction.action.performed += _jumpCallback;
-
 		_attackCallback = _ => OnAttackPressed?.Invoke();
 		_AttackAction.action.performed += _attackCallback;
-
 		_interactionCallback = _ => OnInteractionPressed?.Invoke();
 		_InteractionAction.action.performed += _interactionCallback;
 
@@ -125,6 +122,7 @@ public class InputManager : PersistentSingleton<InputManager>
 		_JumpAction.action.Disable();
 		_AttackAction.action.Disable();
 		_InteractionAction.action.Disable();
+		_SprintAction.action.Disable();
 	}
 
 	private void EnableAllActions()
@@ -133,6 +131,7 @@ public class InputManager : PersistentSingleton<InputManager>
 		_JumpAction.action.Enable();
 		_AttackAction.action.Enable();
 		_InteractionAction.action.Enable();
+		_SprintAction.action.Enable();
 	}
 
 	/// Initialize a dictionary that links the ActionMap enum with their
@@ -149,8 +148,7 @@ public class InputManager : PersistentSingleton<InputManager>
 	/// Handles changing the control scheme.
 	private void OnControlsChanged(PlayerInput input)
 	{
-		if (input.currentControlScheme == null)
-			return;
+		if (input.currentControlScheme == null) return;
 		UpdateCurrentDeviceType(input.currentControlScheme);
 	}
 
@@ -175,12 +173,24 @@ public class InputManager : PersistentSingleton<InputManager>
 		MoveInput = context.ReadValue<Vector2>();
 	}
 
+	private void OnSprintCanceled(InputAction.CallbackContext context)
+	{
+		IsSprinting = false;
+	}
+
+	private void OnSprintPerformed(InputAction.CallbackContext context)
+	{
+		IsSprinting = true;
+	}
+
 	private void UnbindInput()
 	{
 		_MoveAction.action.performed -= OnMovePerformed;
 		_MoveAction.action.canceled -= OnMoveCanceled;
 		_LookAction.action.performed -= OnLookPerformed;
 		_LookAction.action.canceled -= OnLookCanceled;
+		_SprintAction.action.performed -= OnSprintPerformed;
+		_SprintAction.action.canceled -= OnSprintCanceled;
 
 		_JumpAction.action.performed -= _jumpCallback;
 		_AttackAction.action.performed -= _attackCallback;
@@ -200,8 +210,7 @@ public class InputManager : PersistentSingleton<InputManager>
 				_ => DeviceType.Unknown,
 		};
 
-		if (newDevice == CurrentDeviceType)
-			return;
+		if (newDevice == CurrentDeviceType) return;
 		CurrentDeviceType = newDevice;
 		Debug.Log($"Device Changed: <color=red>{CurrentDeviceType}</color>");
 		OnDeviceChanged?.Invoke(CurrentDeviceType);
