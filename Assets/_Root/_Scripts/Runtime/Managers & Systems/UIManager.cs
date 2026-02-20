@@ -1,6 +1,6 @@
-using PROJECTNAME.Interfaces;
+using System;
+using System.Collections.Generic;
 using PROJECTNAME.UI;
-using PROJECTNAME.UI.UGUI;
 using PROJECTNAME.Utilities;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -22,9 +22,7 @@ public class UIManager : Singleton<UIManager>
 	[SerializeField, ReadOnly,]
 	private Canvas _CrosshairCanvas;
 
-	[TabGroup("", "Info", SdfIconType.QuestionSquareFill, TextColor = "lightblue"),
-	 ShowInInspector, ReadOnly, HideLabel,]
-	private UGuiUIBackendState BackendState => (Backend as UGuiUIBackend)?.State;
+	private readonly List<UIInputReactiveBase> _ReactiveUIs = new();
 
 
 	private void Start()
@@ -44,17 +42,16 @@ public class UIManager : Singleton<UIManager>
 	{
 		if (!InputManager.Instance) return;
 		InputManager.Instance.OnDeviceChanged -= OnDeviceChanged;
-		Backend?.Shutdown();
 	}
 
 
 	public void AddReactiveUI(UIInputReactiveBase uiInputReactiveBase)
 	{
-		if (Backend is IUIReactiveRegistry registry)
-			registry.RegisterReactiveUI(reactiveUI);
+		if (!_ReactiveUIs.Contains(uiInputReactiveBase))
+			_ReactiveUIs.Add(uiInputReactiveBase);
 	}
 
-	public void UnregisterReactiveUI(UIInputReactiveBase reactiveUI)
+	private void OnDeviceChanged(DeviceType deviceType)
 	{
 		switch (deviceType)
 		{
@@ -65,13 +62,11 @@ public class UIManager : Singleton<UIManager>
 			Debug.Log("Showing Gamepad UI.");
 			break;
 		case DeviceType.Unknown:
-			throw new ArgumentOutOfRangeException(nameof(deviceType),
-												  deviceType, null);
+			throw new ArgumentOutOfRangeException(nameof(deviceType), deviceType, null);
 		}
 
-	private void OnDeviceChanged(DeviceType deviceType)
-	{
-		Backend.HandleDeviceChange(deviceType);
+		foreach (UIInputReactiveBase uiInputReactiveBase in _ReactiveUIs)
+			uiInputReactiveBase.HandleDeviceChange(deviceType);
 	}
 }
 }

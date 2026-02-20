@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
 using DeviceType = PROJECTNAME.Utilities.Types.DeviceType;
 
-namespace PROJECTNAME.UI.UGUI
+namespace PROJECTNAME.UI
 {
 public class IconSwap : UIInputReactiveBase
 {
