@@ -1,0 +1,68 @@
+OVDF v1.1
+PROJECTNAME.Managers.InputManager, Project
+MetaGuid:a3cb3204a6befc74c9588e5100cbc353
+
+# $G6c3TwKWtsMQ2Wd7vgVtrh
+Position: $root:53
++ [Sirenix.OdinInspector.TabGroupAttribute]
+	GroupName = "InputManager"
+
+# $PUVXP92G1d1wepi9PqaX27
+Position: $G6c3TwKWtsMQ2Wd7vgVtrh:0
++ [Sirenix.OdinInspector.TabGroupAttribute+TabSubGroupAttribute]
+	GroupName = "Settings"
+	Icon = GearFill
+	TextColor = "yellow"
+
+# $E1zD5cnu2iSniW2t4bzLSs
+Position: $G6c3TwKWtsMQ2Wd7vgVtrh:1
++ [Sirenix.OdinInspector.TabGroupAttribute+TabSubGroupAttribute]
+	GroupName = "Info"
+	Icon = QuestionSquareFill
+	TextColor = "cyan"
+
+# $3qKirxsStUJNm71zem2mo9
+Position: $PUVXP92G1d1wepi9PqaX27:0
++ [Sirenix.OdinInspector.FoldoutGroupAttribute]
+	GroupName = "Input Map References"
+
+# $UpqX9oV1yFRoMyyRx7WKm7
+Position: $PUVXP92G1d1wepi9PqaX27:1
++ [Sirenix.OdinInspector.BoxGroupAttribute]
+	GroupName = "Action Map Bindings"
+	ShowLabel = True
+	CenterLabel = False
+
+# _PlayerInput
+Position: $E1zD5cnu2iSniW2t4bzLSs:0
+
+# CurrentDeviceType
+Position: $E1zD5cnu2iSniW2t4bzLSs:1
+
+# _AttackAction
+Position: $3qKirxsStUJNm71zem2mo9:3
+
+# _InteractionAction
+Position: $3qKirxsStUJNm71zem2mo9:4
+
+# _MoveAction
+Position: $3qKirxsStUJNm71zem2mo9:0
+
+# _LookAction
+Position: $3qKirxsStUJNm71zem2mo9:1
+
+# _JumpAction
+Position: $3qKirxsStUJNm71zem2mo9:2
+
+# _GameplayActionMap
+Position: $UpqX9oV1yFRoMyyRx7WKm7:0
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 150
+
+# _UIActionMap
+Position: $UpqX9oV1yFRoMyyRx7WKm7:1
++ [Sirenix.OdinInspector.LabelWidthAttribute]
+	Width = 150
+
+# _SprintAction
+Position: $3qKirxsStUJNm71zem2mo9:5

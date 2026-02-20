@@ -2,14 +2,15 @@ using System;
 using PROJECTNAME.Managers;
 using Unity.Cinemachine;
 using UnityEngine;
-using DeviceType = PROJECTNAME.Managers.DeviceType;
+using UnityEngine.InputSystem;
+using DeviceType = PROJECTNAME.Utilities.Types.DeviceType;
 
-namespace Demos
+namespace PROJECTNAME
 {
 public class PlayerController : MonoBehaviour
 {
 	[Header("Movement Settings"), SerializeField,
-	 Tooltip("Speed of the player movement")]
+	 Tooltip("Speed of the player movement"),]
 	private float _MoveSpeed = 5f;
 
 	private CinemachineCamera _Camera;
@@ -29,6 +30,11 @@ public class PlayerController : MonoBehaviour
 			Debug.LogError("No Cinemachine Camera found as a child!");
 	}
 
+	private void Start()
+	{
+		InputManager.Instance.SetPlayerInput(GetComponent<PlayerInput>());
+	}
+
 	private void Update()
 	{
 		Vector2 moveInput = InputManager.Instance.MoveInput;
@@ -40,7 +46,7 @@ public class PlayerController : MonoBehaviour
 
 	private void OnEnable()
 	{
-		InputManager.Instance.OnMovePressed += HandleMovement;
+		InputManager.Instance.OnMovePressed += HandleMovementInput;
 		InputManager.Instance.OnJumpPressed += HandleJump;
 		InputManager.Instance.OnAttackPressed += HandleAttack;
 		InputManager.Instance.OnInteractionPressed += HandleInteraction;
@@ -51,12 +57,13 @@ public class PlayerController : MonoBehaviour
 	{
 		if (!InputManager.Instance) return;
 
-		InputManager.Instance.OnMovePressed -= HandleMovement;
+		InputManager.Instance.OnMovePressed -= HandleMovementInput;
 		InputManager.Instance.OnJumpPressed -= HandleJump;
 		InputManager.Instance.OnAttackPressed -= HandleAttack;
 		InputManager.Instance.OnInteractionPressed -= HandleInteraction;
 		InputManager.Instance.OnDeviceChanged -= HandleDeviceChanged;
 	}
+
 
 	public void SetSpeed(float newSpeed)
 	{
@@ -72,15 +79,15 @@ public class PlayerController : MonoBehaviour
 	{
 		switch (deviceType)
 		{
-			case DeviceType.KeyboardMouse:
-				_LookSensitivity = 0.35f;
-				break;
-			case DeviceType.Gamepad:
-				_LookSensitivity = 1f;
-				break;
-			case DeviceType.Unknown:
-				throw new ArgumentOutOfRangeException(nameof(deviceType),
-					deviceType, null);
+		case DeviceType.KeyboardMouse:
+			_LookSensitivity = 0.35f;
+			break;
+		case DeviceType.Gamepad:
+			_LookSensitivity = 1f;
+			break;
+		case DeviceType.Unknown:
+			throw new ArgumentOutOfRangeException(nameof(deviceType),
+												  deviceType, null);
 		}
 	}
 
@@ -94,7 +101,7 @@ public class PlayerController : MonoBehaviour
 		Debug.Log("Jump Pressed!");
 	}
 
-	private void HandleMovement()
+	private void HandleMovementInput()
 	{
 		Debug.Log("Movement Input Detected!");
 	}
@@ -109,7 +116,7 @@ public class PlayerController : MonoBehaviour
 		_CameraPitch = Mathf.Clamp(_CameraPitch, -80f, 80f);
 
 		_CameraTransform.rotation =
-			Quaternion.Euler(_CameraPitch, _CameraYaw, 0f);
+				Quaternion.Euler(_CameraPitch, _CameraYaw, 0f);
 	}
 
 	private void MoveCharacter(Vector2 move)
@@ -126,7 +133,7 @@ public class PlayerController : MonoBehaviour
 		right.Normalize();
 
 		Vector3 movement = (forward * move.y + right * move.x) *
-		                   (_MoveSpeed * Time.deltaTime);
+						   (_MoveSpeed * Time.deltaTime);
 		transform.Translate(movement, Space.World);
 	}
 }

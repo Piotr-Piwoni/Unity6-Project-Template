@@ -18,6 +18,7 @@ public class Spawner : MonoBehaviour
 		SpawnObject();
 	}
 
+
 	/// <summary>
 	///     Spawns the provided object.
 	/// </summary>
