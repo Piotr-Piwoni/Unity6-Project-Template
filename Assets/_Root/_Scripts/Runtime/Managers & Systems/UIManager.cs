@@ -15,44 +15,52 @@ namespace PROJECTNAME.Managers
 ///     This manager listens for input device changes and propagates them to all
 ///     registered UI elements that react to input method changes.
 /// </remarks>
-public class UIManager : Singleton<UIManager>
+[HideMonoScript]
+public class UIManager : PersistentSingleton<UIManager>
 {
-	[SerializeField]
-	private GameObject _CrosshairCanvasPrefab;
-	[SerializeField, ReadOnly,]
-	private Canvas _CrosshairCanvas;
-
-	private readonly List<UIInputReactiveBase> _ReactiveUIs = new();
+	private readonly List<UIAdaptorBase> _UIAdaptors = new();
 
 
-	private void Start()
+	protected override void Awake()
 	{
-		// If the player exists and the prefab to the crosshair canvas was provide, spawn it.
-		if (GameManager.Instance.Player && _CrosshairCanvasPrefab)
-			_CrosshairCanvas = Instantiate(_CrosshairCanvasPrefab, transform)
-					.GetComponent<Canvas>();
+		base.Awake();
+		_UIAdaptors.Capacity = 20;
 	}
 
-	private void OnEnable()
+	public override void OnEnable()
 	{
+		base.OnEnable();
 		InputManager.Instance.OnDeviceChanged += OnDeviceChanged;
 	}
 
-	private void OnDisable()
+	public override void OnDisable()
 	{
+		base.OnDisable();
 		if (!InputManager.Instance) return;
 		InputManager.Instance.OnDeviceChanged -= OnDeviceChanged;
 	}
 
-
-	public void AddReactiveUI(UIInputReactiveBase uiInputReactiveBase)
+	private void OnDestroy()
 	{
-		if (!_ReactiveUIs.Contains(uiInputReactiveBase))
-			_ReactiveUIs.Add(uiInputReactiveBase);
+		foreach (UIAdaptorBase adaptor in _UIAdaptors)
+			UnRegisterAdaptor(adaptor);
+	}
+
+	public void RegisterAdaptor(UIAdaptorBase adaptor)
+	{
+		if (!_UIAdaptors.Contains(adaptor))
+			_UIAdaptors.Add(adaptor);
+	}
+
+	public void UnRegisterAdaptor(UIAdaptorBase adaptor)
+	{
+		if (_UIAdaptors.Contains(adaptor))
+			_UIAdaptors.Remove(adaptor);
 	}
 
 	private void OnDeviceChanged(DeviceType deviceType)
 	{
+		// Example showing what control scheme is currently active.
 		switch (deviceType)
 		{
 		case DeviceType.KeyboardMouse:
@@ -65,8 +73,8 @@ public class UIManager : Singleton<UIManager>
 			throw new ArgumentOutOfRangeException(nameof(deviceType), deviceType, null);
 		}
 
-		foreach (UIInputReactiveBase uiInputReactiveBase in _ReactiveUIs)
-			uiInputReactiveBase.HandleDeviceChange(deviceType);
+		foreach (UIAdaptorBase adaptor in _UIAdaptors)
+			adaptor.OnDeviceChange(deviceType);
 	}
 }
 }
