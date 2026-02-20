@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using PROJECTNAME.UI;
 using PROJECTNAME.Utilities;
+using PROJECTNAME.Utilities.Types;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using DeviceType = PROJECTNAME.Utilities.Types.DeviceType;
@@ -18,6 +19,8 @@ namespace PROJECTNAME.Managers
 [HideMonoScript]
 public class UIManager : PersistentSingleton<UIManager>
 {
+	public event Action<UIMode> OnUIModeChanged;
+
 	private readonly List<UIAdaptorBase> _UIAdaptors = new();
 
 
@@ -50,6 +53,11 @@ public class UIManager : PersistentSingleton<UIManager>
 	{
 		if (!_UIAdaptors.Contains(adaptor))
 			_UIAdaptors.Add(adaptor);
+	}
+
+	public void SetUIMode(UIMode mode)
+	{
+		OnUIModeChanged?.Invoke(mode);
 	}
 
 	public void UnRegisterAdaptor(UIAdaptorBase adaptor)

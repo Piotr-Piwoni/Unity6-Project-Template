@@ -5,7 +5,6 @@ using PROJECTNAME.Utilities.Types;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 using DeviceType = PROJECTNAME.Utilities.Types.DeviceType;
 
 namespace PROJECTNAME.Managers
@@ -82,8 +81,6 @@ public class InputManager : PersistentSingleton<InputManager>
 		if (_PlayerInput)
 			_PlayerInput.onControlsChanged -= OnControlsChanged;
 	}
-
-	public override void OnSceneChange(Scene scene, LoadSceneMode mode) { }
 
 	/// <summary>
 	///     Assigns the PlayerInput instance used by the InputManager.
