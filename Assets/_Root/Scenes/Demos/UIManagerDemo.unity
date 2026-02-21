@@ -932,7 +932,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
-  m_Children: []
+  m_Children:
+  - {fileID: 1842535497}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &726491020
@@ -1855,6 +1856,52 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2311919470432744845, guid: fc17360f64002fd44a0c957893336b6b, type: 3}
   m_PrefabInstance: {fileID: 4809952987951407436}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1842535496
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1842535497}
+  - component: {fileID: 1842535498}
+  m_Layer: 0
+  m_Name: Gameplay UI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1842535497
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1842535496}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 703917836}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1842535498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1842535496}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2435109ee7384a5b965737c8030535a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Project::PROJECTNAME.UI.GameplayUIAdaptor
+  _CrosshairCanvasPrefab: {fileID: 4956605202365500484, guid: 456c8165403796148a37d095b44394c4, type: 3}
+  _CrosshairCanvas: {fileID: 0}
 --- !u!1 &1978196566
 GameObject:
   m_ObjectHideFlags: 0

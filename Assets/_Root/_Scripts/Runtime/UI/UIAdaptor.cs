@@ -1,10 +1,12 @@
 ﻿using PROJECTNAME.Managers;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using DeviceType = PROJECTNAME.Utilities.Types.DeviceType;
 
 namespace PROJECTNAME.UI
 {
-public abstract class UIAdaptorBase : MonoBehaviour
+[HideMonoScript]
+public abstract class UIAdaptor : MonoBehaviour
 {
 	protected virtual void Start()
 	{
@@ -13,7 +15,7 @@ public abstract class UIAdaptorBase : MonoBehaviour
 
 	protected virtual void OnDestroy()
 	{
-		UIManager.Instance.UnRegisterAdaptor(this);
+		UIManager.Instance?.UnRegisterAdaptor(this);
 	}
 
 

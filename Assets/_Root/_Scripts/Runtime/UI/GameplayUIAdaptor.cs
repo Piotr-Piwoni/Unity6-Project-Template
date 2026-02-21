@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace PROJECTNAME.UI
 {
-public class GameplayUIAdaptor : UIAdaptorBase
+public class GameplayUIAdaptor : UIAdaptor
 {
 	[SerializeField]
 	private GameObject _CrosshairCanvasPrefab;

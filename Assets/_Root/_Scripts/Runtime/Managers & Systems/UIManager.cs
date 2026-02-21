@@ -21,7 +21,7 @@ public class UIManager : PersistentSingleton<UIManager>
 {
 	public event Action<UIMode> OnUIModeChanged;
 
-	private readonly List<UIAdaptorBase> _UIAdaptors = new();
+	private readonly List<UIAdaptor> _UIAdaptors = new();
 
 
 	protected override void Awake()
@@ -43,13 +43,8 @@ public class UIManager : PersistentSingleton<UIManager>
 		InputManager.Instance.OnDeviceChanged -= OnDeviceChanged;
 	}
 
-	private void OnDestroy()
-	{
-		foreach (UIAdaptorBase adaptor in _UIAdaptors)
-			UnRegisterAdaptor(adaptor);
-	}
 
-	public void RegisterAdaptor(UIAdaptorBase adaptor)
+	public void RegisterAdaptor(UIAdaptor adaptor)
 	{
 		if (!_UIAdaptors.Contains(adaptor))
 			_UIAdaptors.Add(adaptor);
@@ -60,7 +55,7 @@ public class UIManager : PersistentSingleton<UIManager>
 		OnUIModeChanged?.Invoke(mode);
 	}
 
-	public void UnRegisterAdaptor(UIAdaptorBase adaptor)
+	public void UnRegisterAdaptor(UIAdaptor adaptor)
 	{
 		if (_UIAdaptors.Contains(adaptor))
 			_UIAdaptors.Remove(adaptor);
@@ -81,7 +76,7 @@ public class UIManager : PersistentSingleton<UIManager>
 			throw new ArgumentOutOfRangeException(nameof(deviceType), deviceType, null);
 		}
 
-		foreach (UIAdaptorBase adaptor in _UIAdaptors)
+		foreach (UIAdaptor adaptor in _UIAdaptors)
 			adaptor.OnDeviceChange(deviceType);
 	}
 }

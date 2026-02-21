@@ -5,7 +5,7 @@ using DeviceType = PROJECTNAME.Utilities.Types.DeviceType;
 
 namespace PROJECTNAME.UI
 {
-public class IconSwapUIAdaptor : UIAdaptorBase
+public class IconSwapUIAdaptor : UIAdaptor
 {
 	[SerializeField]
 	private Sprite _KeyboardMouseIcon;
