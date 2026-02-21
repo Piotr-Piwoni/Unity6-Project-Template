@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using PROJECTNAME.UI;
 using PROJECTNAME.Utilities;
+using PROJECTNAME.Utilities.Types;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using DeviceType = PROJECTNAME.Utilities.Types.DeviceType;
@@ -15,44 +16,54 @@ namespace PROJECTNAME.Managers
 ///     This manager listens for input device changes and propagates them to all
 ///     registered UI elements that react to input method changes.
 /// </remarks>
-public class UIManager : Singleton<UIManager>
+[HideMonoScript]
+public class UIManager : PersistentSingleton<UIManager>
 {
-	[SerializeField]
-	private GameObject _CrosshairCanvasPrefab;
-	[SerializeField, ReadOnly,]
-	private Canvas _CrosshairCanvas;
+	public event Action<UIMode> OnUIModeChanged;
 
-	private readonly List<UIInputReactiveBase> _ReactiveUIs = new();
+	private readonly List<UIAdaptor> _UIAdaptors = new();
 
 
-	private void Start()
+	protected override void Awake()
 	{
-		// If the player exists and the prefab to the crosshair canvas was provide, spawn it.
-		if (GameManager.Instance.Player && _CrosshairCanvasPrefab)
-			_CrosshairCanvas = Instantiate(_CrosshairCanvasPrefab, transform)
-					.GetComponent<Canvas>();
+		base.Awake();
+		_UIAdaptors.Capacity = 20;
 	}
 
-	private void OnEnable()
+	public override void OnEnable()
 	{
+		base.OnEnable();
 		InputManager.Instance.OnDeviceChanged += OnDeviceChanged;
 	}
 
-	private void OnDisable()
+	public override void OnDisable()
 	{
+		base.OnDisable();
 		if (!InputManager.Instance) return;
 		InputManager.Instance.OnDeviceChanged -= OnDeviceChanged;
 	}
 
 
-	public void AddReactiveUI(UIInputReactiveBase uiInputReactiveBase)
+	public void RegisterAdaptor(UIAdaptor adaptor)
 	{
-		if (!_ReactiveUIs.Contains(uiInputReactiveBase))
-			_ReactiveUIs.Add(uiInputReactiveBase);
+		if (!_UIAdaptors.Contains(adaptor))
+			_UIAdaptors.Add(adaptor);
+	}
+
+	public void SetUIMode(UIMode mode)
+	{
+		OnUIModeChanged?.Invoke(mode);
+	}
+
+	public void UnRegisterAdaptor(UIAdaptor adaptor)
+	{
+		if (_UIAdaptors.Contains(adaptor))
+			_UIAdaptors.Remove(adaptor);
 	}
 
 	private void OnDeviceChanged(DeviceType deviceType)
 	{
+		// Example showing what control scheme is currently active.
 		switch (deviceType)
 		{
 		case DeviceType.KeyboardMouse:
@@ -62,12 +73,11 @@ public class UIManager : Singleton<UIManager>
 			Debug.Log("Showing Gamepad UI.");
 			break;
 		case DeviceType.Unknown:
-			throw new ArgumentOutOfRangeException(nameof(deviceType),
-												  deviceType, null);
+			throw new ArgumentOutOfRangeException(nameof(deviceType), deviceType, null);
 		}
 
-		foreach (UIInputReactiveBase uiInputReactiveBase in _ReactiveUIs)
-			uiInputReactiveBase.HandleDeviceChange(deviceType);
+		foreach (UIAdaptor adaptor in _UIAdaptors)
+			adaptor.OnDeviceChange(deviceType);
 	}
 }
 }

@@ -58,7 +58,7 @@ public abstract class Singleton<T> : StaticInstance<T> where T : MonoBehaviour
 /// </summary>
 /// <typeparam name="T">The class to make persistent.</typeparam>
 public abstract class PersistentSingleton<T> : Singleton<T>, ISceneChangeHandler
-	where T : MonoBehaviour
+		where T : MonoBehaviour
 {
 	protected override void Awake()
 	{
@@ -78,6 +78,6 @@ public abstract class PersistentSingleton<T> : Singleton<T>, ISceneChangeHandler
 		SceneManager.sceneLoaded -= OnSceneChange;
 	}
 
-	public abstract void OnSceneChange(Scene scene, LoadSceneMode mode);
+	public virtual void OnSceneChange(Scene scene, LoadSceneMode mode) { }
 }
 }

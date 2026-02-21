@@ -5,7 +5,7 @@ using DeviceType = PROJECTNAME.Utilities.Types.DeviceType;
 
 namespace PROJECTNAME.UI
 {
-public class IconSwap : UIInputReactiveBase
+public class IconSwapUIAdaptor : UIAdaptor
 {
 	[SerializeField]
 	private Sprite _KeyboardMouseIcon;
@@ -21,7 +21,7 @@ public class IconSwap : UIInputReactiveBase
 	}
 
 
-	public override void HandleDeviceChange(DeviceType deviceType)
+	public override void OnDeviceChange(DeviceType deviceType)
 	{
 		switch (deviceType)
 		{
@@ -44,8 +44,7 @@ public class IconSwap : UIInputReactiveBase
 			_Image.sprite = _GamepadIcon;
 			break;
 		case DeviceType.Unknown:
-			throw new ArgumentOutOfRangeException(nameof(deviceType),
-												  deviceType, null);
+			throw new ArgumentOutOfRangeException(nameof(deviceType), deviceType, null);
 		}
 	}
 }

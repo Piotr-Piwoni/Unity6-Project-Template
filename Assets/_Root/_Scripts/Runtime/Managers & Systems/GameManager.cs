@@ -1,9 +1,9 @@
 ﻿using PROJECTNAME.Systems;
 using PROJECTNAME.Utilities;
+using PROJECTNAME.Utilities.Types;
 using Sirenix.OdinInspector;
 using Unity.Cinemachine;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace PROJECTNAME.Managers
 {
@@ -24,7 +24,7 @@ public class GameManager : PersistentSingleton<GameManager>
 	[ShowInInspector, ReadOnly,]
 	public GameObject Player { get; private set; }
 	[ShowInInspector, ReadOnly,]
-	public GameState CurrentState { get; private set; } = GameState.Playing;
+	public GameState CurrentState { get; private set; } = GameState.Gameplay;
 	public HierarchyGroups Groups => _Groups;
 
 	[SerializeField]
@@ -77,16 +77,16 @@ public class GameManager : PersistentSingleton<GameManager>
 		switch (CurrentState)
 		{
 		case GameState.MainMenu:
-			// Logic for when the game is in the Main Menu.
+			// Special logic for when the game is in the Main Menu.
 			break;
-		case GameState.Playing:
+		case GameState.Gameplay:
 			// Logic for when the game is actually playing.
 			break;
-		case GameState.Talking:
-			// Logic for when talking occurs in the game.
+		case GameState.Dialogue:
+			// Logic for when dialogue occurs in the game.
 			break;
-		case GameState.Pause:
-			// Logic for when the game is paused.
+		case GameState.Paused:
+			// Special logic for when the game is paused.
 			break;
 		case GameState.Menu:
 			// Logic for when the game is in a UI menu.
@@ -104,8 +104,6 @@ public class GameManager : PersistentSingleton<GameManager>
 		_PreviousState = CurrentState;
 		CurrentState = newState;
 	}
-
-	public override void OnSceneChange(Scene scene, LoadSceneMode mode) { }
 
 	/// <summary>
 	///     Locates and initializes the active camera and Cinemachine camera.
@@ -186,15 +184,6 @@ public class GameManager : PersistentSingleton<GameManager>
 		// If spawner found, spawn the player there.
 		if (_UsePlayerSpawner)
 			_PlayerSpawner.Spawn(Player.transform, true);
-	}
-
-	public enum GameState
-	{
-		MainMenu = 0,
-		Playing = 1,
-		Talking = 2,
-		Pause = 3,
-		Menu = 4,
 	}
 }
 }
